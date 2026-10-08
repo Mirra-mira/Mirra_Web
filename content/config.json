@@ -1,0 +1,25 @@
+{
+  "bookingUrl": {
+    "vi": "https://docs.google.com/forms/d/e/1FAIpQLScZutFq75olti-a64jQOF_5LeI_vXxqCRHVFiTuh6RotR4Nmw/viewform?usp=dialog",
+    "en": "[TODO: EN]"
+  },
+  "contact": {
+    "facebook": "https://www.facebook.com/profile.php?id=61559005453114&locale=vi_VN",
+    "discordUsername": "mirra_mira9091",
+    "youtube": "https://www.youtube.com/@mirra_mira9091",
+    "twitter": "https://x.com/mirra_mira9091",
+    "sketchfab": "https://sketchfab.com/mirra_mira9091",
+    "github": "https://github.com/Mirra-mira"
+  },
+  "about": {
+    "name": "Mirra",
+    "greeting": {
+      "vi": "Hi, mình là Mirra :3",
+      "en": "Hi, I'm Mirra :3"
+    },
+    "roles": {
+      "vi": "Translator · Software Engineer · 3D Artist · Indie Developer",
+      "en": "Translator · Software Engineer · 3D Artist · Indie Developer"
+    }
+  }
+}

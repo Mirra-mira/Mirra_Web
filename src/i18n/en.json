@@ -1,0 +1,84 @@
+{
+  "siteTitle": "Mirra — 3D VTuber & VRChat Commission",
+  "siteDescription": "3D VTuber and VRChat avatar commission. Convert 2D artwork into 3D models that work in VRChat and streaming apps.",
+
+  "nav": {
+    "home": "Home",
+    "tos": "Terms",
+    "about": "About",
+    "book": "Book commission"
+  },
+
+  "theme": {
+    "toggleLight": "Switch to light theme",
+    "toggleDark": "Switch to dark theme"
+  },
+
+  "weather": {
+    "toggle": "Toggle weather effects"
+  },
+
+  "lang": {
+    "switchTo": "Tiếng Việt",
+    "current": "English"
+  },
+
+  "home": {
+    "heroTag": "3D VTuber · VRChat Commission",
+    "heroTitle": "Turn your 2D artwork into a 3D model ready for VRChat and streaming apps.",
+    "heroSubtitle": "Mirra takes 3D avatar commissions from your existing 2D reference. Three packages: streaming only, VRChat only, or both.",
+    "heroCtaPrimary": "Book commission",
+    "heroCtaSecondary": "Read terms",
+
+    "sectionPackagesTag": "Part I",
+    "sectionPackagesTitle": "Service packages",
+    "sectionPackagesIntro": "Pick a package based on the app you plan to stream in. Not sure which one? Message me on Facebook before booking.",
+
+    "packageCardBasic": "Basic",
+    "packageCardDetail": "Detail",
+    "packageCardIncludes": "Includes",
+    "packageCardSeeExample": "See example",
+
+    "sectionWhyTitle": "Why split by app?",
+    "sectionWhyBody": "Each app has different technical requirements — VRChat uses VRC PhysBone + its own Expression Menu; other streaming apps use the VRM standard. Different scope, different pricing.",
+
+    "sectionSurchargesTitle": "Surcharges",
+    "sectionSurchargesPercentOf": "of package price",
+
+    "sectionOutfitsTag": "Part II",
+    "sectionOutfitsTitle": "Extra outfits",
+    "sectionOutfitsBasicCol": "Basic",
+    "sectionOutfitsDetailCol": "Detail",
+    "sectionOutfitsPackageCol": "Package",
+    "sectionOutfitsConditionsTitle": "Conditions",
+
+    "ctaBookTitle": "Ready to book?",
+    "ctaBookBody": "The Google Form walks through package selection, requirements, and reference upload. I reply within 1–2 days.",
+    "ctaReadTos": "Read the terms of service first →"
+  },
+
+  "tos": {
+    "title": "Terms of service",
+    "subtitle": "Please read before booking.",
+    "ctaBook": "I've read it — book commission"
+  },
+
+  "about": {
+    "pageTitle": "About Mirra",
+    "connectTitle": "Connect",
+    "discordCopy": "Copy username",
+    "discordCopied": "Copied!",
+    "portfolioLabel": "3D portfolio (Sketchfab)"
+  },
+
+  "footer": {
+    "madeBy": "Mirra © 2026",
+    "portfolio": "Sketchfab portfolio"
+  },
+
+  "common": {
+    "vnd": "VND",
+    "usd": "USD",
+    "openInNewTab": "Open in new tab"
+  }
+}

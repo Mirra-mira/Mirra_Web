@@ -1,0 +1,27 @@
+---
+// Root `/` — tự redirect dựa trên lựa chọn ngôn ngữ đã lưu (localStorage),
+// fallback về 'vi' nếu chưa có. Không dùng Astro redirectToDefaultLocale
+// vì cần đọc localStorage ở client.
+---
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mirra</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline>
+      (function () {
+        var lang = "vi";
+        try {
+          var stored = localStorage.getItem("mirra.lang");
+          if (stored === "en" || stored === "vi") lang = stored;
+        } catch (_e) {}
+        window.location.replace("/" + lang + "/");
+      })();
+    </script>
+    <meta http-equiv="refresh" content="0; url=/vi/" />
+  </head>
+  <body></body>
+</html>

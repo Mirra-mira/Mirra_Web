@@ -1,0 +1,71 @@
+---
+import { getUI, type Locale } from "../i18n";
+import config from "../../content/config.json";
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getUI(locale);
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-left">
+      <span class="brand-dot"></span>
+      <span>{t.footer.madeBy}</span>
+    </div>
+    <div class="footer-right">
+      <a href={config.contact.sketchfab} target="_blank" rel="noopener noreferrer">
+        {t.footer.portfolio}
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 80px;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+  }
+  .footer-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
+  .footer-right a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .footer-right a:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  @media (min-width: 640px) {
+    .footer-inner {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+</style>

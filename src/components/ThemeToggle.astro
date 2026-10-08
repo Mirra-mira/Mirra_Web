@@ -1,0 +1,74 @@
+---
+import Icon from "./Icon.astro";
+import { getUI, type Locale } from "../i18n";
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getUI(locale);
+---
+
+<button
+  type="button"
+  id="theme-toggle"
+  class="theme-toggle"
+  aria-label={t.theme.toggleDark}
+>
+  <span class="icon-sun"><Icon name="sun" size={18} /></span>
+  <span class="icon-moon"><Icon name="moon" size={18} /></span>
+</button>
+
+<script is:inline>
+  // Toggle giữa light/dark và lưu vào localStorage.
+  // Theme init chạy từ <head> inline script (xem BaseLayout) để tránh FOUC.
+  (function () {
+    const btn = document.getElementById("theme-toggle");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      const current = document.documentElement.dataset.theme || "light";
+      const next = current === "light" ? "dark" : "light";
+      document.documentElement.dataset.theme = next;
+      try {
+        localStorage.setItem("mirra.theme", next);
+      } catch (_e) {}
+    });
+  })();
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      border-color 0.15s ease;
+  }
+  .theme-toggle:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+    border-color: var(--color-border-strong);
+  }
+  .icon-sun,
+  .icon-moon {
+    display: inline-flex;
+  }
+  :root .icon-moon {
+    display: none;
+  }
+  :root[data-theme="dark"] .icon-sun {
+    display: none;
+  }
+  :root[data-theme="dark"] .icon-moon {
+    display: inline-flex;
+  }
+</style>

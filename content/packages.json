@@ -1,0 +1,174 @@
+{
+  "exchangeRate": {
+    "vndPerUsd": 25800,
+    "note": {
+      "vi": "Giá USD quy đổi theo tỷ giá 25.800 VNĐ/USD, làm tròn lên đến chục đô. Khách Việt Nam thanh toán theo VNĐ, khách quốc tế theo USD.",
+      "en": "Prices for international clients are in USD."
+    }
+  },
+  "packages": [
+    {
+      "id": "A",
+      "name": {
+        "vi": "Gói A — Chỉ app livestream",
+        "en": "Package A — Streaming apps only"
+      },
+      "tagline": {
+        "vi": "VSeeFace, Warudo, 3tene, VNyan...",
+        "en": "VSeeFace, Warudo, 3tene, VNyan..."
+      },
+      "basic":  { "vnd": 5500000, "usd": 220 },
+      "detail": { "vnd": 8500000, "usd": 330 },
+      "features": {
+        "vi": [
+          "Model 3D + texture theo tham khảo 2D",
+          "Rig cơ bản (xương, weight paint)",
+          "Blendshape: 5 khẩu hình miệng + 4 biểu cảm (map theo chuẩn VRM)",
+          "Spring Bone chuẩn VRM cho tóc/nơ/tai/đuôi",
+          "Test tương thích với app bạn chỉ định",
+          "File bàn giao: FBX + VRM"
+        ],
+        "en": [
+          "3D model + textures from your 2D reference",
+          "Basic rig (bones, weight painting)",
+          "Blendshapes: 5 mouth shapes + 4 expressions (mapped to the VRM standard)",
+          "VRM Spring Bones for hair, ribbons, ears, tail",
+          "Compatibility testing in your chosen app",
+          "Delivered files: FBX + VRM"
+        ]
+      }
+    },
+    {
+      "id": "B",
+      "name": {
+        "vi": "Gói B — Chỉ VRChat",
+        "en": "Package B — VRChat only"
+      },
+      "tagline": {
+        "vi": "VRChat PC, PhysBone + Expression Menu",
+        "en": "VRChat PC, PhysBone + Expression Menu"
+      },
+      "basic":  { "vnd":  8000000, "usd": 320 },
+      "detail": { "vnd": 13000000, "usd": 510 },
+      "features": {
+        "vi": [
+          "Model 3D + texture theo tham khảo 2D",
+          "Rig cơ bản (xương, weight paint)",
+          "Blendshape: 5 khẩu hình miệng + 4 biểu cảm",
+          "VRC PhysBone (collision, grab/stretch) cho phần cần đung đưa",
+          "Avatar Descriptor + Expression Menu/Parameters",
+          "Eye Look: chớp mắt và chuyển động mắt tự động",
+          "Tối ưu Performance Rank (Good trở lên nếu có thể)",
+          "File bàn giao: FBX + Unitypackage cài sẵn cho VRChat"
+        ],
+        "en": [
+          "3D model + textures from your 2D reference",
+          "Basic rig (bones, weight painting)",
+          "Blendshapes: 5 mouth shapes + 4 expressions",
+          "VRC PhysBone (collision, grab/stretch) for swaying parts",
+          "Avatar Descriptor + Expression Menu/Parameters",
+          "Eye Look: automatic blinking and eye movement",
+          "Performance Rank optimization (Good or better where possible)",
+          "Delivered files: FBX + Unitypackage set up for VRChat"
+        ]
+      }
+    },
+    {
+      "id": "C",
+      "name": {
+        "vi": "Gói C — VRChat + app livestream",
+        "en": "Package C — VRChat + streaming app"
+      },
+      "tagline": {
+        "vi": "Cả hai môi trường, test tương thích đầy đủ",
+        "en": "Both environments, full compatibility testing"
+      },
+      "basic":  { "vnd": 10000000, "usd": 390 },
+      "detail": { "vnd": 16000000, "usd": 630 },
+      "features": {
+        "vi": [
+          "Tất cả nội dung Gói A (setup cho app livestream, Spring Bone/VRM)",
+          "Tất cả nội dung Gói B (VRC PhysBone, Expression Menu, Eye Look, Performance Rank)",
+          "Test tương thích trên cả hai môi trường trước khi bàn giao",
+          "File bàn giao: FBX + VRM + Unitypackage cài sẵn cho VRChat"
+        ],
+        "en": [
+          "Everything in Package A (streaming app setup, Spring Bones/VRM)",
+          "Everything in Package B (VRC PhysBones, Expression Menu, Eye Look, Performance Rank)",
+          "Compatibility testing in both environments before delivery",
+          "Delivered files: FBX + VRM + Unitypackage set up for VRChat"
+        ]
+      }
+    }
+  ],
+  "modelComplexityExamples": {
+    "basic": "https://drive.google.com/drive/folders/15FXzvi0RFuMiUr5kgI-qiOcD-vdXp80g?usp=drive_link",
+    "detail": "https://drive.google.com/drive/folders/1DEo5rVfmPAl6o0iWbnac6OojV-yDBA5U?usp=drive_link"
+  },
+  "surcharges": [
+    {
+      "id": "extra_blendshape",
+      "label": {
+        "vi": "Blendshape thêm ngoài gói chuẩn",
+        "en": "Extra blendshape beyond the standard set"
+      },
+      "price": { "vnd": 50000, "usd": 2 },
+      "unit": {
+        "vi": "/ shape",
+        "en": "/ shape"
+      }
+    },
+    {
+      "id": "missing_reference",
+      "label": {
+        "vi": "Phụ phí thiếu thông tin tham khảo",
+        "en": "Missing reference fee"
+      },
+      "price": { "percentOfPackage": 15 },
+      "note": {
+        "vi": "Áp dụng khi thiếu mã màu và/hoặc ref góc nghiêng, phía sau. Chỉ tính một lần 15%, dù thiếu một hay cả hai. Điều kiện tối thiểu để nhận đơn: có ít nhất ảnh ref góc trước và góc ngang.",
+        "en": "Applies when color codes and/or side/back reference views are missing. Charged once at 15%, whether one or both are missing. Minimum requirement to accept a commission: at least front and side reference images."
+      }
+    }
+  ],
+  "extraOutfits": {
+    "intro": {
+      "vi": "Mỗi gói đã bao gồm 1 outfit. Muốn thêm outfit khác, bạn mua theo bảng dưới. Cột 'cơ bản/chi tiết' tính theo độ phức tạp của outfit.",
+      "en": "Each package already includes 1 outfit. For additional outfits, order an add-on from the tables below. 'Basic/Detailed' refers to the complexity of the outfit."
+    },
+    "firstExtra": {
+      "label": {
+        "vi": "Outfit mua thêm đầu tiên (outfit thứ 2)",
+        "en": "First add-on outfit (outfit #2)"
+      },
+      "rows": [
+        { "package": "A", "basic": { "vnd": 2500000, "usd": 100 }, "detail": { "vnd": 3800000, "usd": 150 } },
+        { "package": "B", "basic": { "vnd": 3600000, "usd": 140 }, "detail": { "vnd": 5900000, "usd": 230 } },
+        { "package": "C", "basic": { "vnd": 4500000, "usd": 180 }, "detail": { "vnd": 7200000, "usd": 280 } }
+      ]
+    },
+    "subsequent": {
+      "label": {
+        "vi": "Từ outfit thứ 3 trở đi (giảm 30%)",
+        "en": "Outfit #3 and beyond (30% off)"
+      },
+      "rows": [
+        { "package": "A", "basic": { "vnd": 1750000, "usd":  70 }, "detail": { "vnd": 2660000, "usd": 110 } },
+        { "package": "B", "basic": { "vnd": 2520000, "usd": 100 }, "detail": { "vnd": 4130000, "usd": 170 } },
+        { "package": "C", "basic": { "vnd": 3150000, "usd": 130 }, "detail": { "vnd": 5040000, "usd": 200 } }
+      ]
+    },
+    "conditions": {
+      "vi": [
+        "Chỉ áp dụng cho model do Mirra làm. Không nhận làm outfit cho model không do Mirra làm.",
+        "Lượt đếm tính theo khách, không theo từng model. Outfit đi kèm giá gói không tính vào lượt đếm.",
+        "Giảm giá áp dụng khi outfit mới được bàn giao trong vòng 6 tháng kể từ ngày bàn giao outfit mua thêm gần nhất. Quá 6 tháng, lượt đếm bắt đầu lại."
+      ],
+      "en": [
+        "Only available for models I made. I do not make outfits for models I didn't create.",
+        "Outfits are counted per client, not per model. Outfits included in a package price do not count.",
+        "The 30% discount applies when a new outfit is delivered within 6 months of the delivery of your most recent add-on outfit. After 6 months, the count resets."
+      ]
+    }
+  }
+}

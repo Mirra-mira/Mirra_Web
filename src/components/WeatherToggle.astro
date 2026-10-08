@@ -1,0 +1,90 @@
+---
+// WeatherToggle: nút bật/tắt hiệu ứng thời tiết.
+// - Lưu trạng thái vào localStorage key `mirra.weatherfx` ("on" | "off").
+// - Phát CustomEvent `mirra:weatherfx:toggle` để WeatherFX nghe và cập nhật.
+// - Mặc định BẬT (lần đầu truy cập chưa có key).
+import Icon from "./Icon.astro";
+import { getUI, type Locale } from "../i18n";
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getUI(locale);
+---
+
+<button
+  type="button"
+  id="weatherfx-toggle"
+  class="fx-toggle"
+  aria-label={t.weather.toggle}
+  aria-pressed="true"
+>
+  <Icon name="sparkles" size={18} />
+</button>
+
+<script is:inline>
+  (function () {
+    const btn = document.getElementById("weatherfx-toggle");
+    if (!btn) return;
+    const KEY = "mirra.weatherfx";
+
+    // Đồng bộ UI của nút với state hiện tại
+    function sync(on) {
+      btn.setAttribute("aria-pressed", String(on));
+      btn.classList.toggle("off", !on);
+    }
+
+    // Khởi tạo từ localStorage (mặc định on)
+    let on = true;
+    try {
+      on = localStorage.getItem(KEY) !== "off";
+    } catch (_e) {}
+    sync(on);
+
+    btn.addEventListener("click", function () {
+      on = !on;
+      try {
+        localStorage.setItem(KEY, on ? "on" : "off");
+      } catch (_e) {}
+      sync(on);
+      // Báo cho WeatherFX đổi hiển thị theo trạng thái mới
+      window.dispatchEvent(
+        new CustomEvent("mirra:weatherfx:toggle", { detail: { on: on } })
+      );
+    });
+  })();
+</script>
+
+<style>
+  /* Giữ layout khớp với ThemeToggle để trông đồng bộ */
+  .fx-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      border-color 0.15s ease,
+      opacity 0.15s ease;
+  }
+  .fx-toggle:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+    border-color: var(--color-border-strong);
+  }
+  /* Khi tắt effect: nút mờ đi để báo trạng thái off */
+  .fx-toggle.off {
+    opacity: 0.45;
+  }
+  .fx-toggle.off:hover {
+    opacity: 0.75;
+  }
+</style>

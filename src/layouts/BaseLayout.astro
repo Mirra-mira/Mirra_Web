@@ -1,0 +1,61 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { getUI, type Locale } from "../i18n";
+
+export interface Props {
+  locale: Locale;
+  currentPath: string; // "/", "/tos", "/about"
+  title?: string;
+  description?: string;
+}
+
+const { locale, currentPath, title, description } = Astro.props;
+const t = getUI(locale);
+const pageTitle = title ? `${title} · Mirra` : t.siteTitle;
+const pageDesc = description ?? t.siteDescription;
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="description" content={pageDesc} />
+    <title>{pageTitle}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {/* Theme init — chạy inline sớm để tránh FOUC */}
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem("mirra.theme");
+          if (t === "dark" || t === "light") {
+            document.documentElement.dataset.theme = t;
+          } else {
+            document.documentElement.dataset.theme = "light";
+          }
+        } catch (_e) {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <Header locale={locale} currentPath={currentPath} />
+    <main class="page-main">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>
+
+<style>
+  .page-main {
+    min-height: calc(100dvh - 56px);
+  }
+</style>

@@ -1,0 +1,73 @@
+---
+import Icon from "./Icon.astro";
+import { getUI, type Locale } from "../i18n";
+import config from "../../content/config.json";
+
+export interface Props {
+  locale: Locale;
+  size?: "sm" | "md" | "lg";
+  variant?: "primary" | "ghost";
+}
+const { locale, size = "md", variant = "primary" } = Astro.props;
+const t = getUI(locale);
+const href = config.bookingUrl[locale];
+// Nếu link EN chưa có (placeholder), vẫn render nhưng dán link VI để không chết — khách có thể hiểu.
+const safeHref = href && !href.startsWith("[TODO") ? href : config.bookingUrl.vi;
+---
+
+<a
+  class={`book-btn book-${size} book-${variant}`}
+  href={safeHref}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={t.nav.book}
+>
+  <span>{t.nav.book}</span>
+  <Icon name="arrow-up-right" size={size === "sm" ? 14 : 16} />
+</a>
+
+<style>
+  .book-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    transition:
+      background-color 0.15s ease,
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+    white-space: nowrap;
+  }
+  .book-primary {
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+  }
+  .book-primary:hover {
+    background: var(--color-accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  }
+  .book-ghost {
+    background: transparent;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+  .book-ghost:hover {
+    background: var(--color-surface-2);
+    border-color: var(--color-border-strong);
+  }
+  .book-sm {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+  .book-md {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  .book-lg {
+    padding: 14px 22px;
+    font-size: 16px;
+  }
+</style>

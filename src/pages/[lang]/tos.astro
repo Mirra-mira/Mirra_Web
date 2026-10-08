@@ -1,0 +1,75 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BookButton from "../../components/BookButton.astro";
+import { getUI, LOCALES, type Locale } from "../../i18n";
+
+// Import cả 2 bản MD rồi chọn theo locale. Astro render Markdown tại build-time.
+import { Content as ContentVi } from "../../../content/vi/tos.md";
+import { Content as ContentEn } from "../../../content/en/tos.md";
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const t = getUI(lang);
+const Content = lang === "vi" ? ContentVi : ContentEn;
+---
+
+<BaseLayout locale={lang} currentPath="/tos" title={t.tos.title}>
+  <section class="tos-section">
+    <div class="tos-inner">
+      <header class="tos-head">
+        <h1 class="tos-title">{t.tos.title}</h1>
+        <p class="tos-subtitle">{t.tos.subtitle}</p>
+      </header>
+
+      <article class="prose-tos">
+        <Content />
+      </article>
+
+      <div class="tos-cta">
+        <BookButton locale={lang} size="lg" variant="primary" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tos-section {
+    padding: 48px 20px 40px;
+  }
+  .tos-inner {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .tos-head {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .tos-title {
+    margin: 0 0 8px 0;
+    font-size: clamp(28px, 5vw, 36px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--color-text);
+  }
+  .tos-subtitle {
+    margin: 0;
+    font-size: 15px;
+    color: var(--color-text-muted);
+  }
+  .tos-cta {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Prose: tăng h1 thứ nhất trong markdown xuống h2 size vì page đã có h1 */
+  .prose-tos :global(h1):first-child {
+    display: none;
+  }
+</style>

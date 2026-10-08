@@ -1,0 +1,192 @@
+---
+import Icon from "./Icon.astro";
+import { getUI, type Locale } from "../i18n";
+import config from "../../content/config.json";
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getUI(locale);
+const c = config.contact;
+
+const links = [
+  { name: "Facebook", href: c.facebook, icon: "facebook" as const, handle: "Mirra" },
+  { name: "YouTube", href: c.youtube, icon: "youtube" as const, handle: "@mirra_mira9091" },
+  { name: "Twitter / X", href: c.twitter, icon: "twitter" as const, handle: "@mirra_mira9091" },
+  { name: "Sketchfab", href: c.sketchfab, icon: "sketchfab" as const, handle: "mirra_mira9091" },
+  { name: "GitHub", href: c.github, icon: "github" as const, handle: "Mirra-mira" },
+];
+---
+
+<div class="socials">
+  {
+    links.map((link) => (
+      <a
+        class="social-card"
+        href={link.href}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span class="social-icon">
+          <Icon name={link.icon} size={22} />
+        </span>
+        <span class="social-text">
+          <span class="social-name">{link.name}</span>
+          <span class="social-handle">{link.handle}</span>
+        </span>
+        <Icon name="arrow-up-right" size={14} class="social-arrow" />
+      </a>
+    ))
+  }
+
+  {/* Discord: không có public profile URL — hiển thị username + nút Copy */}
+  <button class="social-card" id="discord-card" type="button">
+    <span class="social-icon">
+      <Icon name="discord" size={22} />
+    </span>
+    <span class="social-text">
+      <span class="social-name">Discord</span>
+      <span class="social-handle" id="discord-handle">{c.discordUsername}</span>
+    </span>
+    <span class="social-copy" id="discord-copy-label">
+      <Icon name="copy" size={14} />
+      <span>{t.about.discordCopy}</span>
+    </span>
+  </button>
+</div>
+
+<script is:inline define:vars={{ username: config.contact.discordUsername, copiedLabel: t.about.discordCopied }}>
+  (function () {
+    const btn = document.getElementById("discord-card");
+    const label = document.getElementById("discord-copy-label");
+    if (!btn || !label) return;
+    const originalHTML = label.innerHTML;
+    btn.addEventListener("click", async function () {
+      try {
+        await navigator.clipboard.writeText(username);
+        label.textContent = copiedLabel;
+        label.classList.add("copied");
+        setTimeout(function () {
+          label.innerHTML = originalHTML;
+          label.classList.remove("copied");
+        }, 1800);
+      } catch (_e) {
+        // Fallback: dùng textarea trick nếu clipboard API bị chặn
+        const ta = document.createElement("textarea");
+        ta.value = username;
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand("copy");
+          label.textContent = copiedLabel;
+          label.classList.add("copied");
+          setTimeout(function () {
+            label.innerHTML = originalHTML;
+            label.classList.remove("copied");
+          }, 1800);
+        } catch (_err) {}
+        document.body.removeChild(ta);
+      }
+    });
+  })();
+</script>
+
+<style>
+  .socials {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .socials {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .social-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: border-color 0.15s, background-color 0.15s, transform 0.15s;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    width: 100%;
+  }
+  .social-card:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface-2);
+    transform: translateY(-1px);
+  }
+  .social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-2);
+    color: var(--color-text);
+    flex-shrink: 0;
+  }
+  .social-card:hover .social-icon {
+    color: var(--color-accent);
+  }
+  .social-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+  .social-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-text);
+  }
+  .social-handle {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--color-text-subtle);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  :global(.social-arrow) {
+    color: var(--color-text-subtle);
+    flex-shrink: 0;
+    transition: color 0.15s, transform 0.15s;
+  }
+  .social-card:hover :global(.social-arrow) {
+    color: var(--color-accent);
+    transform: translate(2px, -2px);
+  }
+  .social-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-subtle);
+    padding: 5px 9px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-2);
+    transition: color 0.15s, background-color 0.15s;
+    flex-shrink: 0;
+  }
+  .social-card:hover .social-copy {
+    color: var(--color-text);
+    background: var(--color-bg);
+  }
+  .social-copy.copied {
+    color: var(--color-success);
+    background: color-mix(in oklab, var(--color-success) 15%, transparent);
+  }
+</style>

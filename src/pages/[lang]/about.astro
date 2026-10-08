@@ -1,0 +1,93 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SocialLinks from "../../components/SocialLinks.astro";
+import { getUI, LOCALES, type Locale } from "../../i18n";
+import config from "../../../content/config.json";
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const t = getUI(lang);
+---
+
+<BaseLayout locale={lang} currentPath="/about" title={t.about.pageTitle}>
+  <section class="about-section">
+    <div class="about-inner">
+      <div class="about-head">
+        <div class="avatar">
+          <img src="/mirra-avatar.png" alt="Mirra" width="112" height="112" />
+        </div>
+
+        <h1 class="greeting">{config.about.greeting[lang]}</h1>
+        <p class="roles">{config.about.roles[lang]}</p>
+      </div>
+
+      <div class="connect">
+        <h2 class="connect-title">{t.about.connectTitle}</h2>
+        <SocialLinks locale={lang} />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about-section {
+    padding: 60px 20px;
+  }
+  .about-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+  .about-head {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .avatar {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--color-surface-2);
+    box-shadow:
+      0 0 0 4px var(--color-bg),
+      0 0 0 5px var(--color-border);
+    margin-bottom: 8px;
+  }
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .greeting {
+    margin: 0;
+    font-size: clamp(24px, 4vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--color-text);
+  }
+  .roles {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    max-width: 42ch;
+    line-height: 1.6;
+  }
+  .connect-title {
+    margin: 0 0 16px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+</style>

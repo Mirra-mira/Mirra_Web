@@ -1,0 +1,372 @@
+---
+// WeatherFX: lớp hiệu ứng thời tiết đặt phía sau nội dung header.
+// Luồng:
+//  1. Đọc localStorage key `mirra.weatherfx` → nếu "off" thì ẩn ngay, không fetch.
+//  2. Đọc cache `mirra.weather.data` (TTL 1 giờ) → nếu còn hạn thì dùng luôn.
+//  3. Nếu không có cache: fetch IP → ipapi.co để lấy toạ độ, rồi gọi Open-Meteo.
+//  4. Map weather_code (WMO) + is_day thành 1 trong 4 category: sun/rain/cloud/night.
+//  5. Fallback khi fetch lỗi: theo theme (dark → night, light → sun).
+//
+// Hiệu ứng dùng CSS thuần (span + animation) để nhẹ, không phụ thuộc canvas/JS.
+// Các vị trí hạt được inline qua `style` để tránh phải viết nhiều selector nth-child.
+
+// Vị trí sparkle của trạng thái sun (top/left % + animation-delay s)
+const sparkles = [
+  { t: 20, l: 8, d: 0 },
+  { t: 55, l: 18, d: 0.6 },
+  { t: 30, l: 32, d: 1.1 },
+  { t: 70, l: 45, d: 0.3 },
+  { t: 25, l: 58, d: 1.5 },
+  { t: 60, l: 72, d: 0.9 },
+  { t: 15, l: 85, d: 0.2 },
+  { t: 50, l: 92, d: 1.3 },
+];
+
+// Vị trí star của trạng thái night
+const stars = [
+  { t: 25, l: 6, d: 0 },
+  { t: 60, l: 15, d: 0.5 },
+  { t: 15, l: 24, d: 1.2 },
+  { t: 70, l: 36, d: 0.3 },
+  { t: 30, l: 48, d: 1.6 },
+  { t: 55, l: 58, d: 0.8 },
+  { t: 20, l: 68, d: 1.0 },
+  { t: 65, l: 76, d: 0.4 },
+  { t: 35, l: 86, d: 1.4 },
+  { t: 50, l: 94, d: 0.9 },
+];
+
+// Vị trí drop của trạng thái rain: left%, delay s, duration s
+// (phân bố left bằng công thức (i*13) mod 100 để trông ngẫu nhiên)
+const drops = Array.from({ length: 20 }, (_, i) => ({
+  left: (i * 13) % 100,
+  delay: (i % 7) * 0.12,
+  dur: 0.7 + (i % 5) * 0.08,
+}));
+---
+
+<div class="weather-fx" data-weather="sun" aria-hidden="true">
+  {/* ===== SUN: glow góc phải + hạt lấp lánh ===== */}
+  <div class="fx-sun">
+    <span class="sun-glow"></span>
+    {
+      sparkles.map((s) => (
+        <span
+          class="sparkle"
+          style={`top:${s.t}%;left:${s.l}%;animation-delay:${s.d}s`}
+        />
+      ))
+    }
+  </div>
+
+  {/* ===== RAIN: hạt mưa chéo rơi liên tục ===== */}
+  <div class="fx-rain">
+    {
+      drops.map((d) => (
+        <span
+          class="drop"
+          style={`left:${d.left}%;animation-delay:${d.delay}s;animation-duration:${d.dur}s`}
+        />
+      ))
+    }
+  </div>
+
+  {/* ===== CLOUD: 3 cụm mây trôi ngang ===== */}
+  <div class="fx-cloud">
+    <span class="cloud c1"></span>
+    <span class="cloud c2"></span>
+    <span class="cloud c3"></span>
+  </div>
+
+  {/* ===== NIGHT: sao nhấp nháy ===== */}
+  <div class="fx-night">
+    {
+      stars.map((s) => (
+        <span
+          class="star"
+          style={`top:${s.t}%;left:${s.l}%;animation-delay:${s.d}s`}
+        />
+      ))
+    }
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    const el = document.querySelector(".weather-fx");
+    if (!el) return;
+
+    const FX_KEY = "mirra.weatherfx";
+    const DATA_KEY = "mirra.weather.data";
+    const TTL = 60 * 60 * 1000; // Cache 1 giờ
+
+    // Áp dụng category hiển thị
+    function apply(category) {
+      el.dataset.weather = category;
+    }
+
+    // Fallback khi không có dữ liệu: theo theme hiện tại
+    function fallback() {
+      const theme = document.documentElement.dataset.theme || "light";
+      apply(theme === "dark" ? "night" : "sun");
+    }
+
+    // Map WMO weather_code → category hiển thị
+    // Tham khảo: https://open-meteo.com/en/docs → "WMO Weather interpretation codes"
+    function classify(code, isDay) {
+      if (code === 0) return isDay ? "sun" : "night"; // trời quang
+      if ([1, 2, 3, 45, 48].includes(code)) return "cloud"; // mây, sương mù
+      if (
+        [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)
+      ) {
+        return "rain"; // mưa phùn → mưa → giông
+      }
+      if ([71, 73, 75, 77, 85, 86].includes(code)) return "cloud"; // tuyết → coi như mây
+      return isDay ? "sun" : "night";
+    }
+
+    // Bật/tắt visual (dùng class .off để ẩn qua CSS)
+    function setEnabled(on) {
+      el.classList.toggle("off", !on);
+    }
+
+    // Lấy data: ưu tiên cache còn hạn, nếu hết hạn thì fetch mới
+    function maybeFetchAndApply() {
+      try {
+        const raw = localStorage.getItem(DATA_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data && Date.now() - data.ts < TTL) {
+            apply(classify(data.code, data.isDay));
+            return;
+          }
+        }
+      } catch (_e) {}
+      // Chưa có cache / cache hết hạn: hiển thị fallback trước, fetch sau
+      fallback();
+      fetchWeather().catch(() => {
+        // Lỗi mạng / API: giữ fallback, không spam console
+      });
+    }
+
+    async function fetchWeather() {
+      // Bước 1: lấy toạ độ từ IP
+      const geoRes = await fetch("https://ipapi.co/json/");
+      if (!geoRes.ok) throw new Error("ipapi failed");
+      const geo = await geoRes.json();
+      const lat = geo.latitude;
+      const lon = geo.longitude;
+      if (lat == null || lon == null) throw new Error("no coords");
+
+      // Bước 2: lấy weather code hiện tại từ Open-Meteo
+      const url =
+        "https://api.open-meteo.com/v1/forecast?latitude=" +
+        lat +
+        "&longitude=" +
+        lon +
+        "&current=weather_code,is_day";
+      const wRes = await fetch(url);
+      if (!wRes.ok) throw new Error("open-meteo failed");
+      const w = await wRes.json();
+      const code = w && w.current && w.current.weather_code;
+      const isDay = !!(w && w.current && w.current.is_day === 1);
+      if (code == null) throw new Error("no weather_code");
+
+      // Lưu cache
+      try {
+        localStorage.setItem(
+          DATA_KEY,
+          JSON.stringify({ code: code, isDay: isDay, ts: Date.now() })
+        );
+      } catch (_e) {}
+      apply(classify(code, isDay));
+    }
+
+    // ===== Init =====
+    let on = true;
+    try {
+      on = localStorage.getItem(FX_KEY) !== "off";
+    } catch (_e) {}
+    setEnabled(on);
+    if (on) maybeFetchAndApply();
+    else fallback();
+
+    // Nghe event từ WeatherToggle
+    window.addEventListener("mirra:weatherfx:toggle", function (e) {
+      const nextOn = !!(e && e.detail && e.detail.on);
+      setEnabled(nextOn);
+      if (nextOn) maybeFetchAndApply();
+    });
+  })();
+</script>
+
+<style>
+  /* Lớp phủ: tuyệt đối ở top header (56px), không ăn click, nằm phía SAU text */
+  .weather-fx {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: -1;
+    color: var(--color-text-muted);
+  }
+
+  .weather-fx.off {
+    display: none;
+  }
+
+  /* Mặc định ẩn tất cả, chỉ hiện lớp khớp với data-weather */
+  .weather-fx > div {
+    position: absolute;
+    inset: 0;
+    display: none;
+  }
+  .weather-fx[data-weather="sun"] .fx-sun,
+  .weather-fx[data-weather="rain"] .fx-rain,
+  .weather-fx[data-weather="cloud"] .fx-cloud,
+  .weather-fx[data-weather="night"] .fx-night {
+    display: block;
+  }
+
+  /* Tôn trọng người dùng tắt motion: ẩn hoàn toàn hiệu ứng cho sạch */
+  @media (prefers-reduced-motion: reduce) {
+    .weather-fx {
+      display: none;
+    }
+  }
+
+  /* ========== SUN ========== */
+  .sun-glow {
+    position: absolute;
+    top: -140%;
+    right: -8%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(
+      circle,
+      rgba(251, 191, 36, 0.35),
+      transparent 65%
+    );
+    filter: blur(6px);
+    animation: sunPulse 6s ease-in-out infinite;
+  }
+  @keyframes sunPulse {
+    0%,
+    100% {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+  }
+  .sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #fbbf24;
+    box-shadow: 0 0 6px rgba(251, 191, 36, 0.7);
+    opacity: 0;
+    animation: twinkle 2.4s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* ========== RAIN ========== */
+  .drop {
+    position: absolute;
+    top: -24px;
+    width: 1px;
+    height: 18px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(96, 165, 250, 0.75)
+    );
+    animation: rainFall linear infinite;
+    transform: rotate(14deg);
+  }
+  @keyframes rainFall {
+    from {
+      transform: translateY(0) rotate(14deg);
+    }
+    to {
+      transform: translateY(90px) rotate(14deg);
+    }
+  }
+
+  /* ========== CLOUD ========== */
+  .cloud {
+    position: absolute;
+    width: 140px;
+    height: 28px;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(148, 163, 184, 0.45),
+      transparent 70%
+    );
+    filter: blur(6px);
+    animation: cloudDrift linear infinite;
+  }
+  .cloud.c1 {
+    top: 10%;
+    animation-duration: 36s;
+    animation-delay: -4s;
+  }
+  .cloud.c2 {
+    top: 42%;
+    animation-duration: 48s;
+    animation-delay: -22s;
+    transform: scale(0.75);
+  }
+  .cloud.c3 {
+    top: 60%;
+    animation-duration: 54s;
+    animation-delay: -14s;
+    transform: scale(1.25);
+  }
+  @keyframes cloudDrift {
+    from {
+      left: -20%;
+    }
+    to {
+      left: 120%;
+    }
+  }
+
+  /* ========== NIGHT ========== */
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    /* Dùng currentColor để tự thích ứng light/dark theme */
+    background: currentColor;
+    box-shadow: 0 0 4px currentColor;
+    opacity: 0.2;
+    animation: twinkleStar 2.2s ease-in-out infinite;
+  }
+  @keyframes twinkleStar {
+    0%,
+    100% {
+      opacity: 0.15;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+</style>

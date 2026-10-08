@@ -1,0 +1,84 @@
+{
+  "siteTitle": "Mirra — 3D VTuber & VRChat Commission",
+  "siteDescription": "Dịch vụ commission 3D VTuber và VRChat avatar. Chuyển từ artwork 2D sang model 3D hoạt động được trong VRChat và các app livestream.",
+
+  "nav": {
+    "home": "Trang chủ",
+    "tos": "Điều khoản",
+    "about": "Về mình",
+    "book": "Đặt commission"
+  },
+
+  "theme": {
+    "toggleLight": "Chuyển sang theme sáng",
+    "toggleDark": "Chuyển sang theme tối"
+  },
+
+  "weather": {
+    "toggle": "Bật/tắt hiệu ứng thời tiết"
+  },
+
+  "lang": {
+    "switchTo": "English",
+    "current": "Tiếng Việt"
+  },
+
+  "home": {
+    "heroTag": "3D VTuber · VRChat Commission",
+    "heroTitle": "Convert artwork 2D của bạn thành model 3D hoạt động trong VRChat và app livestream.",
+    "heroSubtitle": "Mirra nhận commission 3D avatar từ ref 2D có sẵn. 3 gói cho các nhu cầu khác nhau: chỉ livestream, chỉ VRChat, hoặc cả hai.",
+    "heroCtaPrimary": "Đặt commission",
+    "heroCtaSecondary": "Đọc điều khoản",
+
+    "sectionPackagesTag": "Phần I",
+    "sectionPackagesTitle": "Các gói dịch vụ",
+    "sectionPackagesIntro": "Chọn gói theo app bạn muốn dùng để livestream/hiển thị model. Không chắc chọn gói nào? Nhắn Facebook mình để tư vấn trước khi đặt.",
+
+    "packageCardBasic": "Cơ bản",
+    "packageCardDetail": "Chi tiết",
+    "packageCardIncludes": "Bao gồm",
+    "packageCardSeeExample": "Xem ví dụ",
+
+    "sectionWhyTitle": "Tại sao phân chia theo app?",
+    "sectionWhyBody": "Mỗi app có setup kỹ thuật khác nhau — VRChat dùng VRC PhysBone + Expression Menu riêng của SDK; các app livestream khác dùng chuẩn VRM. Vì mục đích khác nhau nên chi phí cũng khác nhau.",
+
+    "sectionSurchargesTitle": "Phụ phí",
+    "sectionSurchargesPercentOf": "giá gói",
+
+    "sectionOutfitsTag": "Phần II",
+    "sectionOutfitsTitle": "Trang phục thêm",
+    "sectionOutfitsBasicCol": "Cơ bản",
+    "sectionOutfitsDetailCol": "Chi tiết",
+    "sectionOutfitsPackageCol": "Gói",
+    "sectionOutfitsConditionsTitle": "Điều kiện",
+
+    "ctaBookTitle": "Sẵn sàng đặt commission?",
+    "ctaBookBody": "Form Google chi tiết các bước: chọn gói, mô tả yêu cầu, upload ref. Mình phản hồi trong vòng 1–2 ngày.",
+    "ctaReadTos": "Đọc điều khoản dịch vụ trước khi đặt →"
+  },
+
+  "tos": {
+    "title": "Điều khoản dịch vụ",
+    "subtitle": "Vui lòng đọc kỹ trước khi đặt commission.",
+    "ctaBook": "Mình đã đọc, đặt commission"
+  },
+
+  "about": {
+    "pageTitle": "Về Mirra",
+    "connectTitle": "Kết nối",
+    "discordCopy": "Copy username",
+    "discordCopied": "Đã copy!",
+    "portfolioLabel": "Portfolio 3D (Sketchfab)"
+  },
+
+  "footer": {
+    "madeBy": "Mirra © 2026",
+    "portfolio": "Portfolio Sketchfab"
+  },
+
+  "common": {
+    "vnd": "VNĐ",
+    "usd": "USD",
+    "openInNewTab": "Mở trong tab mới"
+  }
+}

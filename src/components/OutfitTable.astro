@@ -1,0 +1,188 @@
+---
+import { getUI, formatPrice, type Locale } from "../i18n";
+import packages from "../../content/packages.json";
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getUI(locale);
+const { firstExtra, subsequent, conditions, intro } = packages.extraOutfits;
+---
+
+<div class="outfit-wrap">
+  <p class="outfit-intro">{intro[locale]}</p>
+
+  <div class="outfit-tables">
+    <div class="outfit-table-card">
+      <h4 class="outfit-table-title">{firstExtra.label[locale]}</h4>
+      <div class="outfit-table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>{t.home.sectionOutfitsPackageCol}</th>
+              <th>{t.home.sectionOutfitsBasicCol}</th>
+              <th>{t.home.sectionOutfitsDetailCol}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              firstExtra.rows.map((row) => (
+                <tr>
+                  <td><span class="pkg-badge">{row.package}</span></td>
+                  <td class="price">{formatPrice(row.basic, locale)}</td>
+                  <td class="price">{formatPrice(row.detail, locale)}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="outfit-table-card">
+      <h4 class="outfit-table-title">{subsequent.label[locale]}</h4>
+      <div class="outfit-table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>{t.home.sectionOutfitsPackageCol}</th>
+              <th>{t.home.sectionOutfitsBasicCol}</th>
+              <th>{t.home.sectionOutfitsDetailCol}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              subsequent.rows.map((row) => (
+                <tr>
+                  <td><span class="pkg-badge">{row.package}</span></td>
+                  <td class="price">{formatPrice(row.basic, locale)}</td>
+                  <td class="price">{formatPrice(row.detail, locale)}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="outfit-conditions">
+    <p class="conditions-title">{t.home.sectionOutfitsConditionsTitle}</p>
+    <ul>
+      {conditions[locale].map((c) => <li>{c}</li>)}
+    </ul>
+  </div>
+</div>
+
+<style>
+  .outfit-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .outfit-intro {
+    margin: 0;
+    font-size: 15px;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    max-width: 65ch;
+  }
+  .outfit-tables {
+    display: grid;
+    gap: 16px;
+  }
+  .outfit-table-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+  .outfit-table-title {
+    margin: 0;
+    padding: 14px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    background: var(--color-surface-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .outfit-table-scroll {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th,
+  td {
+    padding: 12px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  thead th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    color: var(--color-text-subtle);
+  }
+  .pkg-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: var(--radius-sm);
+    background: color-mix(in oklab, var(--color-accent) 15%, transparent);
+    color: var(--color-accent);
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .price {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+  .outfit-conditions {
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-2);
+    border: 1px dashed var(--color-border-strong);
+  }
+  .conditions-title {
+    margin: 0 0 10px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .outfit-conditions ul {
+    list-style: disc;
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .outfit-conditions li {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+  .outfit-conditions li::marker {
+    color: var(--color-text-subtle);
+  }
+
+  @media (min-width: 768px) {
+    .outfit-tables {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

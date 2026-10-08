@@ -1,0 +1,241 @@
+---
+import Icon from "./Icon.astro";
+import LangSwitcher from "./LangSwitcher.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+import WeatherToggle from "./WeatherToggle.astro";
+import WeatherFX from "./WeatherFX.astro";
+import BookButton from "./BookButton.astro";
+import { getUI, type Locale } from "../i18n";
+
+export interface Props {
+  locale: Locale;
+  // path không gồm locale, ví dụ: "/", "/tos", "/about"
+  currentPath: string;
+}
+const { locale, currentPath } = Astro.props;
+const t = getUI(locale);
+
+const navItems = [
+  { href: `/${locale}/`, label: t.nav.home, match: "/" },
+  { href: `/${locale}/tos`, label: t.nav.tos, match: "/tos" },
+  { href: `/${locale}/about`, label: t.nav.about, match: "/about" },
+];
+---
+
+<header class="site-header">
+  {/* Lớp hiệu ứng thời tiết: tuyệt đối phủ 56px top, z-index: -1 → nằm sau text */}
+  <WeatherFX />
+  <div class="header-inner">
+    <a class="brand" href={`/${locale}/`}>
+      <span class="brand-dot"></span>
+      <span class="brand-name">Mirra</span>
+    </a>
+
+    <nav class="nav-desktop" aria-label="Primary">
+      {
+        navItems.map((item) => (
+          <a
+            href={item.href}
+            class:list={["nav-link", { active: item.match === currentPath }]}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="header-actions">
+      <LangSwitcher locale={locale} currentPath={currentPath} />
+      <ThemeToggle locale={locale} />
+      <WeatherToggle locale={locale} />
+      <div class="book-wrap"><BookButton locale={locale} size="sm" /></div>
+      <button
+        type="button"
+        id="menu-toggle"
+        class="menu-btn"
+        aria-label="Menu"
+        aria-expanded="false"
+      >
+        <span class="icon-open"><Icon name="menu" size={20} /></span>
+        <span class="icon-close"><Icon name="x" size={20} /></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="nav-mobile" id="nav-mobile" aria-label="Mobile">
+    {
+      navItems.map((item) => (
+        <a
+          href={item.href}
+          class:list={["nav-link-mobile", { active: item.match === currentPath }]}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+    <div class="nav-mobile-book"><BookButton locale={locale} size="md" /></div>
+  </nav>
+</header>
+
+<script is:inline>
+  (function () {
+    const btn = document.getElementById("menu-toggle");
+    const panel = document.getElementById("nav-mobile");
+    if (!btn || !panel) return;
+    btn.addEventListener("click", function () {
+      const open = panel.classList.toggle("open");
+      btn.setAttribute("aria-expanded", String(open));
+      btn.classList.toggle("open", open);
+    });
+    // Close khi click vào link bên trong
+    panel.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", function () {
+        panel.classList.remove("open");
+        btn.classList.remove("open");
+        btn.setAttribute("aria-expanded", "false");
+      });
+    });
+  })();
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in oklab, var(--color-bg) 85%, transparent);
+    backdrop-filter: saturate(140%) blur(10px);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--color-text);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .brand-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 20%, transparent);
+  }
+  .brand-name {
+    font-size: 16px;
+  }
+
+  .nav-desktop {
+    display: none;
+    flex: 1;
+    gap: 4px;
+    margin-left: 12px;
+  }
+  .nav-link {
+    padding: 7px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .nav-link:hover {
+    color: var(--color-text);
+    background: var(--color-surface-2);
+  }
+  .nav-link.active {
+    color: var(--color-text);
+    background: var(--color-surface-2);
+  }
+
+  .header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .book-wrap {
+    display: none;
+  }
+
+  .menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+  .menu-btn .icon-close {
+    display: none;
+  }
+  .menu-btn.open .icon-open {
+    display: none;
+  }
+  .menu-btn.open .icon-close {
+    display: inline-flex;
+  }
+
+  .nav-mobile {
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 20px 16px;
+    border-top: 1px solid var(--color-border);
+  }
+  .nav-mobile.open {
+    display: flex;
+  }
+  .nav-link-mobile {
+    padding: 10px 12px;
+    font-size: 15px;
+    color: var(--color-text);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+  }
+  .nav-link-mobile:hover {
+    background: var(--color-surface-2);
+  }
+  .nav-link-mobile.active {
+    background: var(--color-surface-2);
+    color: var(--color-accent);
+  }
+  .nav-mobile-book {
+    margin-top: 8px;
+  }
+
+  /* Desktop breakpoint: nav inline, menu button ẩn */
+  @media (min-width: 768px) {
+    .nav-desktop {
+      display: inline-flex;
+    }
+    .book-wrap {
+      display: inline-flex;
+    }
+    .menu-btn {
+      display: none;
+    }
+    .nav-mobile {
+      display: none !important;
+    }
+  }
+</style>

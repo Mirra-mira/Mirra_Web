@@ -1,0 +1,107 @@
+---
+import { getUI, formatPrice, type Locale } from "../i18n";
+import packages from "../../content/packages.json";
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getUI(locale);
+---
+
+<div class="price-table">
+  <table>
+    <thead>
+      <tr>
+        <th class="col-pkg">—</th>
+        <th>{t.home.packageCardBasic}</th>
+        <th>{t.home.packageCardDetail}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        packages.packages.map((p) => (
+          <tr>
+            <td class="col-pkg">
+              <span class="pkg-badge">{p.id}</span>
+              <span class="pkg-name">{p.name[locale]}</span>
+            </td>
+            <td class="price">{formatPrice(p.basic, locale)}</td>
+            <td class="price">{formatPrice(p.detail, locale)}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .price-table {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th,
+  td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  thead th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    color: var(--color-text-subtle);
+    background: var(--color-surface-2);
+  }
+  .col-pkg {
+    min-width: 220px;
+  }
+  .pkg-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    background: color-mix(in oklab, var(--color-accent) 15%, transparent);
+    color: var(--color-accent);
+    font-weight: 700;
+    font-size: 12px;
+    margin-right: 10px;
+  }
+  .pkg-name {
+    font-weight: 500;
+    color: var(--color-text);
+  }
+  .price {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 540px) {
+    th,
+    td {
+      padding: 12px;
+    }
+    .col-pkg {
+      min-width: 140px;
+    }
+    .pkg-name {
+      font-size: 13px;
+    }
+  }
+</style>
