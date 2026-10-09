@@ -95,6 +95,37 @@ const missingRef = packages.surcharges.find((s) => s.id === "missing_reference")
     </div>
   </section>
 
+  {/* ===== PART III: ANIMATIONS ===== */}
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-head">
+        <span class="section-tag">{t.home.sectionAnimationsTag}</span>
+        <h2 class="section-title">{t.home.sectionAnimationsTitle}</h2>
+      </div>
+
+      {/* Grid 4 card: idle, sit, walk, run — reuse style surcharge-* để đồng bộ */}
+      <div class="surcharges-grid">
+        {packages.animations.items.map((a) => (
+          <div class="surcharge-card">
+            <p class="surcharge-label">{a.label[lang]}</p>
+            <p class="surcharge-price">
+              {formatPrice(a.price, lang)}
+              {a.note && <span class="surcharge-unit">· {a.note[lang]}</span>}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Điều kiện — reuse style conditions giống OutfitTable (list bullet) */}
+      <div class="anim-conditions">
+        <h3 class="anim-conditions-title">{t.home.sectionAnimationsConditionsTitle}</h3>
+        <ul class="anim-conditions-list">
+          {packages.animations.conditions[lang].map((c) => <li>{c}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
   {/* ===== CTA BOOK ===== */}
   <section class="cta-section">
     <div class="cta-inner">
@@ -314,6 +345,40 @@ const missingRef = packages.surcharges.find((s) => s.id === "missing_reference")
     margin: 10px 0 0 0;
     font-size: 12.5px;
     line-height: 1.55;
+    color: var(--color-text-subtle);
+  }
+
+  /* ===== PART III: ANIMATIONS CONDITIONS =====
+     Style mô phỏng .outfit-conditions trong OutfitTable để nhìn đồng bộ. */
+  .anim-conditions {
+    margin-top: 24px;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-2);
+    border: 1px dashed var(--color-border-strong);
+  }
+  .anim-conditions-title {
+    margin: 0 0 10px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .anim-conditions-list {
+    list-style: disc;
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .anim-conditions-list li {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+  .anim-conditions-list li::marker {
     color: var(--color-text-subtle);
   }
 

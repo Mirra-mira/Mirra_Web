@@ -131,6 +131,44 @@
       }
     }
   ],
+  "animations": {
+    "items": [
+      {
+        "id": "idle",
+        "label": { "vi": "Idle", "en": "Idle" },
+        "price": { "vnd": 150000, "usd": 10 }
+      },
+      {
+        "id": "sit",
+        "label": { "vi": "Sit", "en": "Sit" },
+        "price": { "vnd": 150000, "usd": 10 }
+      },
+      {
+        "id": "walk",
+        "label": { "vi": "Walk", "en": "Walk" },
+        "price": { "vnd": 450000, "usd": 20 },
+        "note": { "vi": "trọn gói 4 hướng", "en": "4-direction bundle" }
+      },
+      {
+        "id": "run",
+        "label": { "vi": "Run", "en": "Run" },
+        "price": { "vnd": 450000, "usd": 20 },
+        "note": { "vi": "trọn gói 4 hướng", "en": "4-direction bundle" }
+      }
+    ],
+    "conditions": {
+      "vi": [
+        "Chỉ áp dụng cho Gói B và Gói C (có VRChat SDK).",
+        "Chỉ áp dụng cho model do Mirra làm.",
+        "Thời gian làm: khoảng 1 tuần cho mỗi animation."
+      ],
+      "en": [
+        "Available only for Package B and Package C (with VRChat SDK).",
+        "Available only for models made by Mirra.",
+        "Delivery time: around 1 week per animation."
+      ]
+    }
+  },
   "extraOutfits": {
     "intro": {
       "vi": "Mỗi gói đã bao gồm 1 outfit. Muốn thêm outfit khác, bạn mua theo bảng dưới. Cột 'cơ bản/chi tiết' tính theo độ phức tạp của outfit.",

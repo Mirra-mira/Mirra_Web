@@ -52,6 +52,10 @@
     "sectionOutfitsPackageCol": "Package",
     "sectionOutfitsConditionsTitle": "Conditions",
 
+    "sectionAnimationsTag": "Part III",
+    "sectionAnimationsTitle": "Basic animations (VRChat)",
+    "sectionAnimationsConditionsTitle": "Conditions",
+
     "ctaBookTitle": "Ready to book?",
     "ctaBookBody": "The Google Form walks through package selection, requirements, and reference upload. I reply within 1–2 days.",
     "ctaReadTos": "Read the terms of service first →"
