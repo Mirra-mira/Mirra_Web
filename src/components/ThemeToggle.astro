@@ -14,6 +14,9 @@ const t = getUI(locale);
   id="theme-toggle"
   class="theme-toggle"
   aria-label={t.theme.toggleDark}
+  data-tooltip={t.theme.toggleDark}
+  data-text-light={t.theme.toggleLight}
+  data-text-dark={t.theme.toggleDark}
 >
   <span class="icon-sun"><Icon name="sun" size={18} /></span>
   <span class="icon-moon"><Icon name="moon" size={18} /></span>
@@ -22,9 +25,20 @@ const t = getUI(locale);
 <script is:inline>
   // Toggle giữa light/dark và lưu vào localStorage.
   // Theme init chạy từ <head> inline script (xem BaseLayout) để tránh FOUC.
+  // Tooltip cập nhật động: hiển thị "sẽ chuyển sang theme NÀO khi click".
   (function () {
     const btn = document.getElementById("theme-toggle");
     if (!btn) return;
+
+    // Set tooltip ban đầu khớp với theme hiện tại (phòng khi dark từ localStorage).
+    function syncTooltip() {
+      const cur = document.documentElement.dataset.theme || "light";
+      btn.dataset.tooltip =
+        cur === "dark" ? btn.dataset.textLight : btn.dataset.textDark;
+      btn.setAttribute("aria-label", btn.dataset.tooltip);
+    }
+    syncTooltip();
+
     btn.addEventListener("click", function () {
       const current = document.documentElement.dataset.theme || "light";
       const next = current === "light" ? "dark" : "light";
@@ -32,6 +46,7 @@ const t = getUI(locale);
       try {
         localStorage.setItem("mirra.theme", next);
       } catch (_e) {}
+      syncTooltip();
     });
   })();
 </script>

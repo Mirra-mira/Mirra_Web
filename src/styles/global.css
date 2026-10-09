@@ -63,6 +63,9 @@ html {
   color-scheme: light;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* Nền đặt ở <html> (thay vì <body>) để body có thể tạo stacking context riêng
+     mà vẫn giữ nền → WeatherFX phủ fixed inset:0 ở z-index:-1 không bị che. */
+  background-color: var(--color-bg);
 }
 
 html[data-theme="dark"] {
@@ -71,11 +74,55 @@ html[data-theme="dark"] {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-bg);
+  background-color: transparent;
   color: var(--color-text);
   font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* isolation: isolate → body thành stacking context root cho WeatherFX body-variant.
+     Element z-index:-1 bên trong sẽ nằm sau nội dung nhưng vẫn trong body (ko xuyên html). */
+  isolation: isolate;
+}
+
+/* ===== TOOLTIP (CSS custom qua data-tooltip attribute) =====
+   Dùng: <button data-tooltip="Text ở đây">...</button>
+   - Hiện phía dưới element, có delay 300ms rồi fade in 150ms.
+   - Ẩn trên thiết bị không có hover (mobile) vì không có trigger thực sự. */
+[data-tooltip] {
+  position: relative;
+}
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  padding: 6px 10px;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.15s ease 0.3s,
+    transform 0.15s ease 0.3s;
+  z-index: 10;
+  box-shadow: var(--color-shadow);
+}
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+@media (hover: none) {
+  [data-tooltip]::after {
+    display: none;
+  }
 }
 
 /* Markdown TOS styling (áp vào wrapper class trong tos.astro) */

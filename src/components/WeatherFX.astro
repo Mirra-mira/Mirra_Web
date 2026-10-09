@@ -1,14 +1,23 @@
 ---
-// WeatherFX: lớp hiệu ứng thời tiết đặt phía sau nội dung header.
+// WeatherFX: lớp hiệu ứng thời tiết dạng CSS, có 2 variant:
+//  - "header" (default): phủ 56px top của header, dense, rõ nét.
+//  - "body": fixed toàn viewport, mờ hơn (opacity ~45%), rain rơi full chiều cao.
+//
+// Logic client (fetch IP → Open-Meteo → classify → apply) được chia sẻ giữa 2 instance
+// qua global flag `window.__mirraWeatherFxInit` để chỉ chạy 1 lần. Mỗi instance giữ
+// phần visual riêng; script sẽ apply category lên TẤT CẢ `.weather-fx` tìm được.
+//
 // Luồng:
 //  1. Đọc localStorage key `mirra.weatherfx` → nếu "off" thì ẩn ngay, không fetch.
 //  2. Đọc cache `mirra.weather.data` (TTL 1 giờ) → nếu còn hạn thì dùng luôn.
 //  3. Nếu không có cache: fetch IP → ipapi.co để lấy toạ độ, rồi gọi Open-Meteo.
 //  4. Map weather_code (WMO) + is_day thành 1 trong 4 category: sun/rain/cloud/night.
 //  5. Fallback khi fetch lỗi: theo theme (dark → night, light → sun).
-//
-// Hiệu ứng dùng CSS thuần (span + animation) để nhẹ, không phụ thuộc canvas/JS.
-// Các vị trí hạt được inline qua `style` để tránh phải viết nhiều selector nth-child.
+
+export interface Props {
+  variant?: "header" | "body";
+}
+const { variant = "header" } = Astro.props;
 
 // Vị trí sparkle của trạng thái sun (top/left % + animation-delay s)
 const sparkles = [
@@ -36,16 +45,15 @@ const stars = [
   { t: 50, l: 94, d: 0.9 },
 ];
 
-// Vị trí drop của trạng thái rain: left%, delay s, duration s
+// Vị trí drop của trạng thái rain: left% + delay s (duration lấy từ CSS var)
 // (phân bố left bằng công thức (i*13) mod 100 để trông ngẫu nhiên)
 const drops = Array.from({ length: 20 }, (_, i) => ({
   left: (i * 13) % 100,
   delay: (i % 7) * 0.12,
-  dur: 0.7 + (i % 5) * 0.08,
 }));
 ---
 
-<div class="weather-fx" data-weather="sun" aria-hidden="true">
+<div class="weather-fx" data-weather="sun" data-variant={variant} aria-hidden="true">
   {/* ===== SUN: glow góc phải + hạt lấp lánh ===== */}
   <div class="fx-sun">
     <span class="sun-glow"></span>
@@ -65,7 +73,7 @@ const drops = Array.from({ length: 20 }, (_, i) => ({
       drops.map((d) => (
         <span
           class="drop"
-          style={`left:${d.left}%;animation-delay:${d.delay}s;animation-duration:${d.dur}s`}
+          style={`left:${d.left}%;animation-delay:${d.delay}s`}
         />
       ))
     }
@@ -92,116 +100,137 @@ const drops = Array.from({ length: 20 }, (_, i) => ({
 </div>
 
 <script is:inline>
+  // Chạy sau khi DOM load xong để tìm được CẢ 2 instance (header + body).
+  // Guard flag toàn cục chống chạy 2 lần (component có thể include 2 lần).
   (function () {
-    const el = document.querySelector(".weather-fx");
-    if (!el) return;
-
-    const FX_KEY = "mirra.weatherfx";
-    const DATA_KEY = "mirra.weather.data";
-    const TTL = 60 * 60 * 1000; // Cache 1 giờ
-
-    // Áp dụng category hiển thị
-    function apply(category) {
-      el.dataset.weather = category;
-    }
-
-    // Fallback khi không có dữ liệu: theo theme hiện tại
-    function fallback() {
-      const theme = document.documentElement.dataset.theme || "light";
-      apply(theme === "dark" ? "night" : "sun");
-    }
-
-    // Map WMO weather_code → category hiển thị
-    // Tham khảo: https://open-meteo.com/en/docs → "WMO Weather interpretation codes"
-    function classify(code, isDay) {
-      if (code === 0) return isDay ? "sun" : "night"; // trời quang
-      if ([1, 2, 3, 45, 48].includes(code)) return "cloud"; // mây, sương mù
-      if (
-        [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)
-      ) {
-        return "rain"; // mưa phùn → mưa → giông
+    function ready(fn) {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", fn);
+      } else {
+        fn();
       }
-      if ([71, 73, 75, 77, 85, 86].includes(code)) return "cloud"; // tuyết → coi như mây
-      return isDay ? "sun" : "night";
     }
 
-    // Bật/tắt visual (dùng class .off để ẩn qua CSS)
-    function setEnabled(on) {
-      el.classList.toggle("off", !on);
-    }
+    ready(function () {
+      if (window.__mirraWeatherFxInit) return;
+      window.__mirraWeatherFxInit = true;
 
-    // Lấy data: ưu tiên cache còn hạn, nếu hết hạn thì fetch mới
-    function maybeFetchAndApply() {
-      try {
-        const raw = localStorage.getItem(DATA_KEY);
-        if (raw) {
-          const data = JSON.parse(raw);
-          if (data && Date.now() - data.ts < TTL) {
-            apply(classify(data.code, data.isDay));
-            return;
-          }
+      const els = document.querySelectorAll(".weather-fx");
+      if (!els.length) return;
+
+      const FX_KEY = "mirra.weatherfx";
+      const DATA_KEY = "mirra.weather.data";
+      const TTL = 60 * 60 * 1000; // Cache 1 giờ
+
+      // Áp dụng category cho MỌI instance (header + body cùng loại thời tiết)
+      function apply(category) {
+        els.forEach(function (el) {
+          el.dataset.weather = category;
+        });
+      }
+
+      // Fallback khi không có dữ liệu: theo theme hiện tại
+      function fallback() {
+        const theme = document.documentElement.dataset.theme || "light";
+        apply(theme === "dark" ? "night" : "sun");
+      }
+
+      // Map WMO weather_code → category hiển thị
+      // Tham khảo: https://open-meteo.com/en/docs → "WMO Weather interpretation codes"
+      function classify(code, isDay) {
+        if (code === 0) return isDay ? "sun" : "night"; // trời quang
+        if ([1, 2, 3, 45, 48].includes(code)) return "cloud"; // mây, sương mù
+        if (
+          [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)
+        ) {
+          return "rain"; // mưa phùn → mưa → giông
         }
-      } catch (_e) {}
-      // Chưa có cache / cache hết hạn: hiển thị fallback trước, fetch sau
-      fallback();
-      fetchWeather().catch(() => {
-        // Lỗi mạng / API: giữ fallback, không spam console
-      });
-    }
+        if ([71, 73, 75, 77, 85, 86].includes(code)) return "cloud"; // tuyết → coi như mây
+        return isDay ? "sun" : "night";
+      }
 
-    async function fetchWeather() {
-      // Bước 1: lấy toạ độ từ IP
-      const geoRes = await fetch("https://ipapi.co/json/");
-      if (!geoRes.ok) throw new Error("ipapi failed");
-      const geo = await geoRes.json();
-      const lat = geo.latitude;
-      const lon = geo.longitude;
-      if (lat == null || lon == null) throw new Error("no coords");
+      // Bật/tắt visual cho mọi instance
+      function setEnabled(on) {
+        els.forEach(function (el) {
+          el.classList.toggle("off", !on);
+        });
+      }
 
-      // Bước 2: lấy weather code hiện tại từ Open-Meteo
-      const url =
-        "https://api.open-meteo.com/v1/forecast?latitude=" +
-        lat +
-        "&longitude=" +
-        lon +
-        "&current=weather_code,is_day";
-      const wRes = await fetch(url);
-      if (!wRes.ok) throw new Error("open-meteo failed");
-      const w = await wRes.json();
-      const code = w && w.current && w.current.weather_code;
-      const isDay = !!(w && w.current && w.current.is_day === 1);
-      if (code == null) throw new Error("no weather_code");
+      // Lấy data: ưu tiên cache còn hạn, nếu hết hạn thì fetch mới
+      function maybeFetchAndApply() {
+        try {
+          const raw = localStorage.getItem(DATA_KEY);
+          if (raw) {
+            const data = JSON.parse(raw);
+            if (data && Date.now() - data.ts < TTL) {
+              apply(classify(data.code, data.isDay));
+              return;
+            }
+          }
+        } catch (_e) {}
+        // Chưa có cache / cache hết hạn: hiển thị fallback trước, fetch sau
+        fallback();
+        fetchWeather().catch(() => {
+          // Lỗi mạng / API: giữ fallback, không spam console
+        });
+      }
 
-      // Lưu cache
+      async function fetchWeather() {
+        // Bước 1: lấy toạ độ từ IP
+        const geoRes = await fetch("https://ipapi.co/json/");
+        if (!geoRes.ok) throw new Error("ipapi failed");
+        const geo = await geoRes.json();
+        const lat = geo.latitude;
+        const lon = geo.longitude;
+        if (lat == null || lon == null) throw new Error("no coords");
+
+        // Bước 2: lấy weather code hiện tại từ Open-Meteo
+        const url =
+          "https://api.open-meteo.com/v1/forecast?latitude=" +
+          lat +
+          "&longitude=" +
+          lon +
+          "&current=weather_code,is_day";
+        const wRes = await fetch(url);
+        if (!wRes.ok) throw new Error("open-meteo failed");
+        const w = await wRes.json();
+        const code = w && w.current && w.current.weather_code;
+        const isDay = !!(w && w.current && w.current.is_day === 1);
+        if (code == null) throw new Error("no weather_code");
+
+        // Lưu cache
+        try {
+          localStorage.setItem(
+            DATA_KEY,
+            JSON.stringify({ code: code, isDay: isDay, ts: Date.now() })
+          );
+        } catch (_e) {}
+        apply(classify(code, isDay));
+      }
+
+      // ===== Init =====
+      let on = true;
       try {
-        localStorage.setItem(
-          DATA_KEY,
-          JSON.stringify({ code: code, isDay: isDay, ts: Date.now() })
-        );
+        on = localStorage.getItem(FX_KEY) !== "off";
       } catch (_e) {}
-      apply(classify(code, isDay));
-    }
+      setEnabled(on);
+      if (on) maybeFetchAndApply();
+      else fallback();
 
-    // ===== Init =====
-    let on = true;
-    try {
-      on = localStorage.getItem(FX_KEY) !== "off";
-    } catch (_e) {}
-    setEnabled(on);
-    if (on) maybeFetchAndApply();
-    else fallback();
-
-    // Nghe event từ WeatherToggle
-    window.addEventListener("mirra:weatherfx:toggle", function (e) {
-      const nextOn = !!(e && e.detail && e.detail.on);
-      setEnabled(nextOn);
-      if (nextOn) maybeFetchAndApply();
+      // Nghe event từ WeatherToggle
+      window.addEventListener("mirra:weatherfx:toggle", function (e) {
+        const nextOn = !!(e && e.detail && e.detail.on);
+        setEnabled(nextOn);
+        if (nextOn) maybeFetchAndApply();
+      });
     });
   })();
 </script>
 
 <style>
-  /* Lớp phủ: tuyệt đối ở top header (56px), không ăn click, nằm phía SAU text */
+  /* ===== Variant: HEADER (default) =====
+     Lớp phủ: tuyệt đối ở top header (56px), không ăn click, nằm phía SAU text.
+     --rain-fall / --rain-dur dùng cho rain keyframe (xem phần RAIN). */
   .weather-fx {
     position: absolute;
     top: 0;
@@ -212,6 +241,20 @@ const drops = Array.from({ length: 20 }, (_, i) => ({
     pointer-events: none;
     z-index: -1;
     color: var(--color-text-muted);
+    --rain-fall: 90px;
+    --rain-dur: 0.8s;
+  }
+
+  /* ===== Variant: BODY =====
+     Fixed toàn viewport, mờ hơn (40%) để không chèn text đang đọc.
+     Rain rơi full chiều cao viewport, chậm hơn. */
+  .weather-fx[data-variant="body"] {
+    position: fixed;
+    inset: 0;
+    height: 100vh;
+    opacity: 0.4;
+    --rain-fall: 110vh;
+    --rain-dur: 2.5s;
   }
 
   .weather-fx.off {
@@ -287,6 +330,8 @@ const drops = Array.from({ length: 20 }, (_, i) => ({
   }
 
   /* ========== RAIN ========== */
+  /* Dùng CSS vars --rain-dur và --rain-fall để header-variant vs body-variant
+     có thể override chiều cao rơi + tốc độ mà không duplicate keyframe. */
   .drop {
     position: absolute;
     top: -24px;
@@ -297,7 +342,7 @@ const drops = Array.from({ length: 20 }, (_, i) => ({
       transparent,
       rgba(96, 165, 250, 0.75)
     );
-    animation: rainFall linear infinite;
+    animation: rainFall var(--rain-dur) linear infinite;
     transform: rotate(14deg);
   }
   @keyframes rainFall {
@@ -305,7 +350,7 @@ const drops = Array.from({ length: 20 }, (_, i) => ({
       transform: translateY(0) rotate(14deg);
     }
     to {
-      transform: translateY(90px) rotate(14deg);
+      transform: translateY(var(--rain-fall)) rotate(14deg);
     }
   }
 
