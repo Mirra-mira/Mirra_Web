@@ -1,0 +1,511 @@
+---
+// TOC (Table of Contents): "Phụ lục" nổi, mặc định bên trái viewport.
+// Props:
+//   • items: { id, label }[] — caller tự quyết content và i18n.
+//   • locale: để lấy string "Phụ lục" / "Ẩn phụ lục" / "Kéo để di chuyển".
+// Hành vi (3 state):
+//   • "visible": mặc định, panel + list đều hiện.
+//   • "hidden" (auto): 3s idle không scroll → fade panel, hiện dot indicator
+//     bên trái. Scroll / hover dot → quay về visible.
+//   • "collapsed" (eye-off): panel vẫn hiện nhưng LIST ẩn — user chỉ thấy
+//     header (grip + title + nút eye-off + ×) → click lại nút eye-off để mở.
+//     Scroll/mouse không tự expand (user đã chủ động collapse).
+// Persistence:
+//   • Dismissed (×) + Collapsed (eye-off) → sessionStorage, giữ qua navigate
+//     giữa các page nhưng CLEAR khi reload (dùng Performance Navigation Timing
+//     để phát hiện reload).
+//   • Vị trí drag → localStorage `mirra.toc.pos` (giữ qua reload và sessions).
+// Khác:
+//   • Highlight active section theo IntersectionObserver.
+//   • Ẩn hoàn toàn trên <1024px (CSS media query).
+import Icon from "./Icon.astro";
+import { getUI, type Locale } from "../i18n";
+
+export interface Props {
+  items: { id: string; label: string }[];
+  locale: Locale;
+}
+const { items, locale } = Astro.props;
+const t = getUI(locale);
+---
+
+{
+  items.length > 0 && (
+    <nav class="toc" aria-label={t.toc.title} data-state="visible">
+      <div class="toc-panel">
+        <div class="toc-header">
+          {/* Grip handle: drag để di chuyển. 6 chấm inline SVG cho gọn. */}
+          <span class="toc-handle" aria-label={t.toc.drag} role="button" tabindex="0">
+            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" fill="currentColor">
+              <circle cx="3" cy="3" r="1" />
+              <circle cx="9" cy="3" r="1" />
+              <circle cx="3" cy="6" r="1" />
+              <circle cx="9" cy="6" r="1" />
+              <circle cx="3" cy="9" r="1" />
+              <circle cx="9" cy="9" r="1" />
+            </svg>
+          </span>
+          <span class="toc-title">{t.toc.title}</span>
+          {/* Ẩn tạm thời: panel ẩn, dot vẫn hiện để mở lại. */}
+          <button type="button" class="toc-hide" aria-label={t.toc.hide}>
+            <Icon name="eye-off" size={14} />
+          </button>
+          {/* Tắt hẳn: dismiss vĩnh viễn, dot cũng mất. */}
+          <button type="button" class="toc-close" aria-label={t.toc.close}>
+            <Icon name="x" size={14} />
+          </button>
+        </div>
+
+        <ol class="toc-list">
+          {items.map((item) => (
+            <li>
+              <a href={`#${item.id}`} class="toc-link" data-target={item.id}>
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      {/* Dot indicator: nút tròn có icon eye-off, hiện khi panel ẩn.
+          Click/hover để mở lại. User nhận ra ngay là "click để bật". */}
+      <button type="button" class="toc-dot" aria-label={t.toc.title}>
+        <Icon name="eye-off" size={14} />
+      </button>
+    </nav>
+  )
+}
+
+<script is:inline>
+  (function () {
+    const toc = document.querySelector(".toc");
+    if (!toc) return;
+
+    const POS_KEY = "mirra.toc.pos";
+    const DISMISSED_KEY = "mirra.toc.dismissed";
+    const COLLAPSED_KEY = "mirra.toc.collapsed";
+    const IDLE_MS = 3000;
+
+    // Detect reload (F5 / Ctrl+R) qua Performance Navigation Timing API.
+    // Khi reload → clear 2 session key để TOC hiện lại từ đầu.
+    // Khi navigate giữa pages (<a href=...>) → giữ nguyên, user không phải
+    // "tắt phụ lục lại" cho mỗi page.
+    try {
+      const navEntries = performance.getEntriesByType("navigation");
+      const isReload = navEntries.length > 0 && navEntries[0].type === "reload";
+      if (isReload) {
+        sessionStorage.removeItem(DISMISSED_KEY);
+        sessionStorage.removeItem(COLLAPSED_KEY);
+      }
+    } catch (_e) {}
+
+    // Dismissed từ session trước (click ×) → ẩn luôn, không init gì khác
+    try {
+      if (sessionStorage.getItem(DISMISSED_KEY) === "true") {
+        toc.style.display = "none";
+        return;
+      }
+    } catch (_e) {}
+
+    // Collapsed từ session trước (click eye-off) → init state collapsed
+    let userCollapsed = false;
+    try {
+      userCollapsed = sessionStorage.getItem(COLLAPSED_KEY) === "true";
+    } catch (_e) {}
+
+    // 2) Restore vị trí đã lưu (nếu có)
+    function clampAndApply(x, y) {
+      const rect = toc.getBoundingClientRect();
+      const maxX = window.innerWidth - rect.width - 4;
+      const maxY = window.innerHeight - rect.height - 4;
+      const clampedX = Math.max(4, Math.min(x, maxX));
+      const clampedY = Math.max(4, Math.min(y, maxY));
+      toc.style.left = clampedX + "px";
+      toc.style.top = clampedY + "px";
+      toc.style.transform = "none"; // bỏ translateY(-50%) centering mặc định
+    }
+    try {
+      const raw = localStorage.getItem(POS_KEY);
+      if (raw) {
+        const pos = JSON.parse(raw);
+        // Chờ layout 1 frame để lấy đúng width/height
+        requestAnimationFrame(function () {
+          if (pos && typeof pos.x === "number" && typeof pos.y === "number") {
+            clampAndApply(pos.x, pos.y);
+          }
+        });
+      }
+    } catch (_e) {}
+
+    // 3) Auto-hide logic
+    let timer = null;
+    function clearTimer() {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    }
+    function hide() {
+      if (userCollapsed) return; // Collapsed đã có state riêng, ko overwrite
+      toc.dataset.state = "hidden";
+      clearTimer();
+    }
+    function scheduleHide() {
+      if (dragging || userCollapsed) return;
+      clearTimer();
+      timer = setTimeout(hide, IDLE_MS);
+    }
+    function show() {
+      if (userCollapsed) return; // Collapsed → scroll không auto-show
+      toc.dataset.state = "visible";
+      scheduleHide();
+    }
+    // Set state ban đầu dựa trên userCollapsed
+    if (userCollapsed) {
+      toc.dataset.state = "collapsed";
+    }
+    // Scroll (và touch scroll) → show
+    window.addEventListener("scroll", show, { passive: true });
+    window.addEventListener("touchstart", show, { passive: true });
+    // Hover TOC → giữ visible (chỉ khi không collapsed)
+    toc.addEventListener("mouseenter", function () {
+      if (userCollapsed) return;
+      clearTimer();
+      toc.dataset.state = "visible";
+    });
+    toc.addEventListener("mouseleave", scheduleHide);
+    // Dot indicator (chỉ hiện khi state="hidden" tức auto-hide)
+    const dot = toc.querySelector(".toc-dot");
+    if (dot) {
+      dot.addEventListener("click", function () {
+        toc.dataset.state = "visible";
+        scheduleHide();
+      });
+      dot.addEventListener("mouseenter", function () {
+        if (userCollapsed) return;
+        toc.dataset.state = "visible";
+        scheduleHide();
+      });
+    }
+
+    // Nút eye-off: toggle collapsed. Header vẫn hiện khi collapsed → user
+    // thấy nút này để click lại và expand list.
+    const hideBtn = toc.querySelector(".toc-hide");
+    if (hideBtn) {
+      hideBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (userCollapsed) {
+          // Đang collapsed → expand lại
+          userCollapsed = false;
+          try {
+            sessionStorage.removeItem(COLLAPSED_KEY);
+          } catch (_e) {}
+          toc.dataset.state = "visible";
+          scheduleHide();
+        } else {
+          // Visible → collapse (chỉ ẩn list)
+          userCollapsed = true;
+          try {
+            sessionStorage.setItem(COLLAPSED_KEY, "true");
+          } catch (_e) {}
+          clearTimer();
+          toc.dataset.state = "collapsed";
+        }
+      });
+    }
+
+    // Close (×): ẩn hẳn, persist qua navigate trong session, clear khi reload
+    const closeBtn = toc.querySelector(".toc-close");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        try {
+          sessionStorage.setItem(DISMISSED_KEY, "true");
+        } catch (_e) {}
+        toc.style.display = "none";
+      });
+    }
+
+    // 5) Drag handling (mouse + touch)
+    const handle = toc.querySelector(".toc-handle");
+    let dragging = false;
+    let startClientX = 0;
+    let startClientY = 0;
+    let origLeft = 0;
+    let origTop = 0;
+
+    function startDrag(clientX, clientY) {
+      dragging = true;
+      startClientX = clientX;
+      startClientY = clientY;
+      const rect = toc.getBoundingClientRect();
+      origLeft = rect.left;
+      origTop = rect.top;
+      // Lock vị trí hiện tại trước khi drag (xoá translateY centering nếu còn)
+      toc.style.left = origLeft + "px";
+      toc.style.top = origTop + "px";
+      toc.style.transform = "none";
+      toc.classList.add("dragging");
+      document.body.style.userSelect = "none";
+      clearTimer();
+    }
+    function duringDrag(clientX, clientY) {
+      if (!dragging) return;
+      const dx = clientX - startClientX;
+      const dy = clientY - startClientY;
+      clampAndApply(origLeft + dx, origTop + dy);
+    }
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      toc.classList.remove("dragging");
+      document.body.style.userSelect = "";
+      const rect = toc.getBoundingClientRect();
+      try {
+        localStorage.setItem(
+          POS_KEY,
+          JSON.stringify({ x: rect.left, y: rect.top })
+        );
+      } catch (_e) {}
+      scheduleHide();
+    }
+
+    if (handle) {
+      handle.addEventListener("mousedown", function (e) {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        startDrag(e.clientX, e.clientY);
+      });
+      handle.addEventListener("touchstart", function (e) {
+        if (e.touches.length !== 1) return;
+        startDrag(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: true });
+    }
+    window.addEventListener("mousemove", function (e) {
+      if (dragging) duringDrag(e.clientX, e.clientY);
+    });
+    window.addEventListener("mouseup", endDrag);
+    window.addEventListener("touchmove", function (e) {
+      if (dragging && e.touches.length === 1) {
+        duringDrag(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+    window.addEventListener("touchend", endDrag);
+
+    // 6) IntersectionObserver → highlight active item
+    const links = toc.querySelectorAll(".toc-link");
+    const sections = [];
+    links.forEach(function (l) {
+      const id = l.getAttribute("data-target");
+      const el = id ? document.getElementById(id) : null;
+      if (el) sections.push({ el: el, link: l });
+    });
+    if (sections.length) {
+      const io = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              const activeId = entry.target.id;
+              links.forEach(function (l) {
+                l.classList.toggle(
+                  "active",
+                  l.getAttribute("data-target") === activeId
+                );
+              });
+            }
+          });
+        },
+        { rootMargin: "-30% 0px -60% 0px", threshold: 0 }
+      );
+      sections.forEach(function (s) {
+        io.observe(s.el);
+      });
+    }
+
+    // Khởi tạo: hiện rồi schedule hide
+    scheduleHide();
+  })();
+</script>
+
+<style>
+  /* ===== Container =====
+     left: 40px để chừa chỗ cho dot (26px wide, left: -32px) nằm gọn
+     trong viewport mà không bị cắt. */
+  .toc {
+    position: fixed;
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+    max-width: 240px;
+  }
+
+  /* ===== Panel (header + list) ===== */
+  .toc-panel {
+    background: color-mix(in oklab, var(--color-surface) 92%, transparent);
+    backdrop-filter: saturate(140%) blur(8px);
+    -webkit-backdrop-filter: saturate(140%) blur(8px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--color-shadow);
+    opacity: 1;
+    transform: translateX(0);
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
+    overflow: hidden;
+  }
+  .toc[data-state="hidden"] .toc-panel {
+    opacity: 0;
+    transform: translateX(-10px);
+    pointer-events: none;
+  }
+  /* Collapsed: panel + header vẫn hiện, chỉ ẩn list. User thấy ngay
+     nút eye-off để click lại và expand. */
+  .toc[data-state="collapsed"] .toc-list {
+    display: none;
+  }
+
+  /* ===== Header bar (grip + title + close) ===== */
+  .toc-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 6px 6px 8px;
+    border-bottom: 1px solid var(--color-border);
+    user-select: none;
+  }
+  .toc-handle {
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-text-subtle);
+    cursor: grab;
+    padding: 2px;
+    border-radius: var(--radius-xs);
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .toc-handle:hover {
+    color: var(--color-text-muted);
+    background: var(--color-surface-2);
+  }
+  .toc.dragging .toc-handle,
+  .toc-handle:active {
+    cursor: grabbing;
+  }
+  .toc-title {
+    flex: 1;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .toc-hide,
+  .toc-close {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-xs);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+  .toc-hide:hover,
+  .toc-close:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
+
+  /* ===== List ===== */
+  .toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .toc-link {
+    display: block;
+    padding: 7px 10px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    border-left: 2px solid transparent;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+  .toc-link:hover {
+    color: var(--color-text);
+    background: var(--color-surface-2);
+  }
+  .toc-link.active {
+    color: var(--color-accent);
+    border-left-color: var(--color-accent);
+    background: var(--color-surface-2);
+  }
+
+  /* ===== Dot indicator (nút eye-off tròn) =====
+     Vị trí: ngay bên trái TOC panel. Chỉ hiện khi panel ẩn. */
+  .toc-dot {
+    position: absolute;
+    left: -32px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--color-shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.3s ease,
+      transform 0.15s ease,
+      background 0.15s ease;
+  }
+  .toc[data-state="hidden"] .toc-dot {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .toc[data-state="hidden"] .toc-dot:hover {
+    transform: translateY(-50%) scale(1.1);
+    background: var(--color-accent-hover);
+  }
+
+  /* Mobile ẩn hoàn toàn */
+  @media (max-width: 1023px) {
+    .toc {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .toc-panel,
+    .toc-dot {
+      transition: none;
+    }
+  }
+</style>

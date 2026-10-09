@@ -9,6 +9,11 @@
     "book": "Đặt commission"
   },
 
+  "bookForms": {
+    "vi": "Form tiếng Việt",
+    "en": "English form"
+  },
+
   "theme": {
     "toggleLight": "Chuyển sang theme sáng",
     "toggleDark": "Chuyển sang theme tối"
@@ -16,6 +21,13 @@
 
   "weather": {
     "toggle": "Bật/tắt hiệu ứng thời tiết"
+  },
+
+  "toc": {
+    "title": "Phụ lục",
+    "hide": "Ẩn tạm thời",
+    "close": "Tắt phụ lục",
+    "drag": "Kéo để di chuyển"
   },
 
   "lang": {

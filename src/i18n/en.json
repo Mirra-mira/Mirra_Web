@@ -9,6 +9,11 @@
     "book": "Book commission"
   },
 
+  "bookForms": {
+    "vi": "Vietnamese form",
+    "en": "English form"
+  },
+
   "theme": {
     "toggleLight": "Switch to light theme",
     "toggleDark": "Switch to dark theme"
@@ -16,6 +21,13 @@
 
   "weather": {
     "toggle": "Toggle weather effects"
+  },
+
+  "toc": {
+    "title": "Contents",
+    "hide": "Hide temporarily",
+    "close": "Dismiss contents",
+    "drag": "Drag to move"
   },
 
   "lang": {

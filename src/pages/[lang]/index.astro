@@ -5,6 +5,7 @@ import BookButton from "../../components/BookButton.astro";
 import PriceTable from "../../components/PriceTable.astro";
 import PackageCard from "../../components/PackageCard.astro";
 import OutfitTable from "../../components/OutfitTable.astro";
+import TOC from "../../components/TOC.astro";
 import { getUI, formatPrice, LOCALES, type Locale } from "../../i18n";
 import packages from "../../../content/packages.json";
 
@@ -17,9 +18,26 @@ const t = getUI(lang);
 
 const blendshape = packages.surcharges.find((s) => s.id === "extra_blendshape")!;
 const missingRef = packages.surcharges.find((s) => s.id === "missing_reference")!;
+
+// TOC items cho trang chủ: 3 section Phần I/II/III
+const tocItems = [
+  {
+    id: "packages",
+    label: `${t.home.sectionPackagesTag} · ${t.home.sectionPackagesTitle}`,
+  },
+  {
+    id: "outfits",
+    label: `${t.home.sectionOutfitsTag} · ${t.home.sectionOutfitsTitle}`,
+  },
+  {
+    id: "animations",
+    label: `${t.home.sectionAnimationsTag} · ${t.home.sectionAnimationsTitle}`,
+  },
+];
 ---
 
 <BaseLayout locale={lang} currentPath="/">
+  <TOC items={tocItems} locale={lang} />
   {/* ===== HERO ===== */}
   <section class="hero">
     <div class="hero-inner">
@@ -38,7 +56,7 @@ const missingRef = packages.surcharges.find((s) => s.id === "missing_reference")
   </section>
 
   {/* ===== PART I: PACKAGES ===== */}
-  <section class="section">
+  <section class="section" id="packages">
     <div class="section-inner">
       <div class="section-head">
         <span class="section-tag">{t.home.sectionPackagesTag}</span>
@@ -85,7 +103,7 @@ const missingRef = packages.surcharges.find((s) => s.id === "missing_reference")
   </section>
 
   {/* ===== PART II: EXTRA OUTFITS ===== */}
-  <section class="section section-alt">
+  <section class="section section-alt" id="outfits">
     <div class="section-inner">
       <div class="section-head">
         <span class="section-tag">{t.home.sectionOutfitsTag}</span>
@@ -96,7 +114,7 @@ const missingRef = packages.surcharges.find((s) => s.id === "missing_reference")
   </section>
 
   {/* ===== PART III: ANIMATIONS ===== */}
-  <section class="section">
+  <section class="section" id="animations">
     <div class="section-inner">
       <div class="section-head">
         <span class="section-tag">{t.home.sectionAnimationsTag}</span>

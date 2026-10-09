@@ -1,11 +1,13 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import BookButton from "../../components/BookButton.astro";
+import TOC from "../../components/TOC.astro";
 import { getUI, LOCALES, type Locale } from "../../i18n";
 
 // Import cả 2 bản MD rồi chọn theo locale. Astro render Markdown tại build-time.
-import { Content as ContentVi } from "../../../content/vi/tos.md";
-import { Content as ContentEn } from "../../../content/en/tos.md";
+// `headings` là array {depth, slug, text} do Astro auto-generate từ heading markdown.
+import { Content as ContentVi, getHeadings as getHeadingsVi } from "../../../content/vi/tos.md";
+import { Content as ContentEn, getHeadings as getHeadingsEn } from "../../../content/en/tos.md";
 
 export function getStaticPaths() {
   return LOCALES.map((lang) => ({ params: { lang } }));
@@ -14,9 +16,17 @@ export function getStaticPaths() {
 const { lang } = Astro.params as { lang: Locale };
 const t = getUI(lang);
 const Content = lang === "vi" ? ContentVi : ContentEn;
+
+// Lấy headings: giữ depth === 2 (các chương "1. Quy trình...", "2. Hình tham khảo"...)
+// Astro tự generate slug từ text để làm id anchor.
+const headings = lang === "vi" ? getHeadingsVi() : getHeadingsEn();
+const tocItems = headings
+  .filter((h) => h.depth === 2)
+  .map((h) => ({ id: h.slug, label: h.text }));
 ---
 
 <BaseLayout locale={lang} currentPath="/tos" title={t.tos.title}>
+  <TOC items={tocItems} locale={lang} />
   <section class="tos-section">
     <div class="tos-inner">
       <header class="tos-head">
