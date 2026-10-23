@@ -45,6 +45,42 @@ const pageDesc = description ?? t.siteDescription;
         }
       })();
     </script>
+
+    {/* Scroll restore khi đổi ngôn ngữ.
+         LangSwitcher lưu {y, path, ts} vào sessionStorage trước khi navigate.
+         Ở đây đọc lại và scroll về đúng vị trí nếu path khớp + mới (<10s). */}
+    <script is:inline>
+      (function () {
+        try {
+          // Tắt scroll restoration mặc định của browser để không bị conflict
+          if ("scrollRestoration" in history) {
+            history.scrollRestoration = "manual";
+          }
+          var raw = sessionStorage.getItem("mirra.langScroll");
+          if (!raw) return;
+          var data = JSON.parse(raw);
+          sessionStorage.removeItem("mirra.langScroll");
+          if (!data || Date.now() - data.ts > 10000) return;
+          // Normalize path (bỏ trailing slash) để so khớp
+          function norm(p) {
+            return (p || "").replace(/\/$/, "") || "/";
+          }
+          if (norm(data.path) !== norm(location.pathname)) return;
+          var y = Number(data.y) || 0;
+          function doScroll() {
+            window.scrollTo(0, y);
+          }
+          // Scroll ngay khi DOM parse xong (layout đã cơ bản)
+          if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", doScroll);
+          } else {
+            doScroll();
+          }
+          // Scroll thêm lần nữa sau khi ảnh/font load — phòng height đổi muộn
+          window.addEventListener("load", doScroll);
+        } catch (_e) {}
+      })();
+    </script>
   </head>
   <body>
     {/* Lớp hiệu ứng thời tiết toàn trang: fixed, phủ viewport, ở z-index: -1

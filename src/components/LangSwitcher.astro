@@ -27,12 +27,24 @@ const href = `/${target}${normalized}`;
 
 <script is:inline>
   // Lưu lựa chọn ngôn ngữ của khách để root `/` biết redirect về đâu lần sau.
+  // Đồng thời lưu scroll position + target path vào sessionStorage để
+  // BaseLayout <head> restore sau khi page mới load → user giữ nguyên
+  // vị trí đang đọc thay vì bay về top.
   document.querySelectorAll(".lang-switch").forEach(function (el) {
     el.addEventListener("click", function (e) {
       const lang = el.getAttribute("data-lang");
+      const href = el.getAttribute("href");
       if (lang) {
         try {
           localStorage.setItem("mirra.lang", lang);
+          sessionStorage.setItem(
+            "mirra.langScroll",
+            JSON.stringify({
+              y: window.scrollY,
+              path: href,
+              ts: Date.now(),
+            })
+          );
         } catch (_e) {}
       }
     });
