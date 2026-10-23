@@ -18,6 +18,7 @@ const t = getUI(lang);
 
 const blendshape = packages.surcharges.find((s) => s.id === "extra_blendshape")!;
 const missingRef = packages.surcharges.find((s) => s.id === "missing_reference")!;
+const arkit = packages.surcharges.find((s) => s.id === "arkit")!;
 
 // TOC items cho trang chủ: 3 section Phần I/II/III
 const tocItems = [
@@ -96,6 +97,14 @@ const tocItems = [
               <span class="surcharge-unit">{t.home.sectionSurchargesPercentOf}</span>
             </p>
             <p class="surcharge-note">{missingRef.note[lang]}</p>
+          </div>
+          <div class="surcharge-card">
+            <p class="surcharge-label">{arkit.label[lang]}</p>
+            <p class="surcharge-price">
+              {arkit.price.percentOfPackage}%
+              <span class="surcharge-unit">{t.home.sectionSurchargesPercentOf}</span>
+            </p>
+            <p class="surcharge-note">{arkit.note[lang]}</p>
           </div>
         </div>
       </div>
@@ -330,6 +339,12 @@ const tocItems = [
   @media (min-width: 640px) {
     .surcharges-grid {
       grid-template-columns: 1fr 1fr;
+    }
+  }
+  /* Từ 1024px: 3 cột để chứa đủ blendshape / missing-ref / arkit một hàng */
+  @media (min-width: 1024px) {
+    .surcharges-grid {
+      grid-template-columns: 1fr 1fr 1fr;
     }
   }
   .surcharge-card {

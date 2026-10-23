@@ -129,6 +129,18 @@
         "vi": "Áp dụng khi thiếu mã màu và/hoặc ref góc nghiêng, phía sau. Chỉ tính một lần 15%, dù thiếu một hay cả hai. Điều kiện tối thiểu để nhận đơn: có ít nhất ảnh ref góc trước và góc ngang.",
         "en": "Applies when color codes and/or side/back reference views are missing. Charged once at 15%, whether one or both are missing. Minimum requirement to accept a commission: at least front and side reference images."
       }
+    },
+    {
+      "id": "arkit",
+      "label": {
+        "vi": "Thêm ARKit",
+        "en": "ARKit add-on"
+      },
+      "price": { "percentOfPackage": 25 },
+      "note": {
+        "vi": "Thêm 52 blendshape chuẩn ARKit cho tracking khuôn mặt bằng iOS (Perfect Sync).",
+        "en": "Adds 52 ARKit standard blendshapes for iOS face tracking (Perfect Sync)."
+      }
     }
   ],
   "animations": {
