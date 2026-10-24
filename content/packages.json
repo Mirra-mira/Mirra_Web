@@ -133,13 +133,16 @@
     {
       "id": "arkit",
       "label": {
-        "vi": "Thêm ARKit",
-        "en": "ARKit add-on"
+        "vi": "Thêm ARKit (Perfect Sync)",
+        "en": "ARKit add-on (Perfect Sync)"
       },
-      "price": { "percentOfPackage": 25 },
+      "price": {
+        "basic":  { "vnd": 1375000, "usd": 60 },
+        "detail": { "vnd": 2125000, "usd": 90 }
+      },
       "note": {
-        "vi": "Thêm 52 blendshape chuẩn ARKit cho tracking khuôn mặt bằng iOS (Perfect Sync).",
-        "en": "Adds 52 ARKit standard blendshapes for iOS face tracking (Perfect Sync)."
+        "vi": "52 blendshape chuẩn ARKit cho app livestream (iOS). Chỉ áp dụng Gói A, C. Không bao gồm setup VRCFaceTracking cho VRChat.",
+        "en": "52 ARKit standard blendshapes for streaming apps (iOS). Applicable to Package A and C only. Does not include VRCFaceTracking setup for VRChat."
       }
     }
   ],

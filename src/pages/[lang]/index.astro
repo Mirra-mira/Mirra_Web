@@ -101,8 +101,12 @@ const tocItems = [
           <div class="surcharge-card">
             <p class="surcharge-label">{arkit.label[lang]}</p>
             <p class="surcharge-price">
-              {arkit.price.percentOfPackage}%
-              <span class="surcharge-unit">{t.home.sectionSurchargesPercentOf}</span>
+              {formatPrice(arkit.price.basic, lang)}
+              <span class="surcharge-unit">· {t.home.packageCardBasic}</span>
+            </p>
+            <p class="surcharge-price">
+              {formatPrice(arkit.price.detail, lang)}
+              <span class="surcharge-unit">· {t.home.packageCardDetail}</span>
             </p>
             <p class="surcharge-note">{arkit.note[lang]}</p>
           </div>
