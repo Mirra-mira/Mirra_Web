@@ -34,7 +34,8 @@
 - **App hỗ trợ:** VRChat, VSeeFace, Warudo, 3tene, VNyan. Model 3D **không dùng được trong VTube Studio** (app này chỉ hỗ trợ Live2D).
 - **Thêm app sau khi đã chốt phạm vi** (ví dụ đã chốt VRChat + VNyan, sau đó muốn thêm Warudo) được tính phí riêng theo khối lượng công việc thực tế, mình báo giá trước khi làm.
 - **Performance Rank (VRChat):** rank phụ thuộc vào độ phức tạp của thiết kế. Model chi tiết (nhiều lớp trang phục, tóc dày) có thể rơi vào mức Poor/Very Poor, và người chơi đã bật chặn avatar theo rank sẽ không thấy model đầy đủ. Mình sẽ báo rank dự kiến trước khi setup để bạn quyết định.
-- **Tracking:** độ chính xác khi tracking tay, ngón tay và khuôn mặt phụ thuộc vào app và thiết bị của bạn (webcam, iPhone...), không phải do model. Face tracking ARKit/Perfect Sync (52 blendshape) **hiện tại mình chưa nhận** vì chưa có điều kiện test.
+- **Tracking:** độ chính xác khi tracking tay, ngón tay và khuôn mặt phụ thuộc vào app và thiết bị của bạn (webcam, iPhone...), không phải do model.
+- **Face tracking ARKit/Perfect Sync (52 blendshape):** là **phụ phí tùy chọn 25% giá gói**, không bao gồm sẵn. Chọn thêm khi đặt commission nếu bạn cần tracking khuôn mặt bằng iOS (Perfect Sync với VSeeFace, Warudo...).
 - **Clipping:** với trang phục nhiều lớp, quần áo có thể bị xuyên ở một số tư thế (đặc biệt khi dùng animation idle mặc định của app). Mình xử lý ở các tư thế thông dụng nhưng không đảm bảo hết mọi tư thế.
 - **Không bao gồm animation tuỳ chỉnh** (idle thay thế, dance, emote animation...).
 - **Outfit:** mỗi gói gồm **1 outfit, không có chức năng đổi outfit**. Muốn thêm outfit khác, bạn cần mua thêm một gói trang phục. Mình chỉ nhận làm thêm trang phục cho model do mình làm.

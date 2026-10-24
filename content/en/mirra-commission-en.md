@@ -147,7 +147,8 @@ Every package already includes **1 outfit** (outfit #1). To get another outfit, 
 - **Supported apps:** VRChat, VSeeFace, Warudo, 3tene, VNyan. 3D models **cannot be used in VTube Studio** (it only supports Live2D).
 - **Adding an app after the scope is confirmed** (for example, the scope was VRChat + VNyan and you later want Warudo) is charged separately based on the actual work involved. I will quote you before starting.
 - **Performance Rank (VRChat):** the rank depends on how complex the design is. Detailed models (layered outfits, thick hair) may end up Poor or Very Poor, and players who block avatars by rank won't see the model fully. I will tell you the expected rank before setup so you can decide.
-- **Tracking:** hand, finger, and face tracking accuracy depends on your app and devices (webcam, iPhone...), not on the model. ARKit/Perfect Sync face tracking (52 blendshapes) is **not offered at the moment**, as I currently have no way to test it.
+- **Tracking:** hand, finger, and face tracking accuracy depends on your app and devices (webcam, iPhone...), not on the model.
+- **ARKit/Perfect Sync face tracking (52 blendshapes):** available as an **optional add-on at 25% of the package price**, not included by default. Opt in when booking if you need iOS face tracking (Perfect Sync with VSeeFace, Warudo...).
 - **Clipping:** with layered outfits, clothing may clip in some poses (especially with an app's default idle animation). I fix clipping in common poses but cannot guarantee every pose.
 - **Custom animations are not included** (replacement idle, dances, emote animations...).
 - **Outfits:** each package includes **1 outfit, with no outfit switching**. For another outfit, you need to order an outfit add-on (see Part II). I only make additional outfits for models I created.
