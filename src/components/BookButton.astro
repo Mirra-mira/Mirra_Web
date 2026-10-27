@@ -10,50 +10,134 @@ export interface Props {
 }
 const { locale, size = "md", variant = "primary" } = Astro.props;
 const t = getUI(locale);
-const href = config.bookingUrl[locale];
-// Nếu link EN chưa có (placeholder), vẫn render nhưng dán link VI để không chết — khách có thể hiểu.
-const safeHref = href && !href.startsWith("[TODO") ? href : config.bookingUrl.vi;
 
-// Dropdown items: luôn 2 lựa chọn VI/EN. Dùng URL trực tiếp (không fallback)
-// vì user chủ động chọn — nếu link lỗi để user biết chứ không ngấm ngầm redirect.
+// Mỗi loại commission có form Google riêng (vi/en theo locale của trang).
+// Nếu URL là placeholder [TODO: ...] → disable item (user chưa cung cấp).
+function resolveUrl(url: string): { href: string; disabled: boolean } {
+  const disabled = !url || url.startsWith("[TODO");
+  return { href: disabled ? "#" : url, disabled };
+}
+
+const vtuber = resolveUrl(config.bookingUrl.vtuber[locale]);
+const game = resolveUrl(config.bookingUrl.game[locale]);
+
+// Dropdown items: 2 loại commission. Mỗi item mở form theo locale hiện tại.
 const dropdownItems = [
-  { url: config.bookingUrl.vi, label: t.bookForms.vi },
-  { url: config.bookingUrl.en, label: t.bookForms.en },
+  { ...vtuber, label: t.bookForms.vtuber },
+  { ...game, label: t.bookForms.game },
 ];
 ---
 
-<div class="book-wrapper">
-  <a
+<div class="book-wrapper" data-book>
+  {/* Button chính: click để toggle dropdown (không link trực tiếp —
+      user cần chủ động chọn loại commission). */}
+  <button
+    type="button"
     class={`book-btn book-${size} book-${variant}`}
-    href={safeHref}
-    target="_blank"
-    rel="noopener noreferrer"
     aria-label={t.nav.book}
     aria-haspopup="menu"
+    aria-expanded="false"
+    data-book-toggle
   >
     <span>{t.nav.book}</span>
-    <Icon name="arrow-up-right" size={size === "sm" ? 14 : 16} />
-  </a>
+    <Icon name="chevron-down" size={size === "sm" ? 14 : 16} />
+  </button>
 
-  {/* Dropdown: hiện khi hover wrapper hoặc focus-within (keyboard-friendly). */}
-  <div class="book-dropdown" role="menu">
+  <div class="book-dropdown" role="menu" data-book-menu>
     {dropdownItems.map((item) => (
       <a
-        class="book-dropdown-item"
-        href={item.url}
-        target="_blank"
-        rel="noopener noreferrer"
+        class:list={["book-dropdown-item", { disabled: item.disabled }]}
+        href={item.href}
+        target={item.disabled ? undefined : "_blank"}
+        rel={item.disabled ? undefined : "noopener noreferrer"}
         role="menuitem"
+        aria-disabled={item.disabled ? "true" : undefined}
+        tabindex={item.disabled ? -1 : undefined}
       >
-        {item.label}
-        <Icon name="arrow-up-right" size={12} />
+        <span class="book-dropdown-label">{item.label}</span>
+        {item.disabled ? (
+          <span class="book-dropdown-badge">{t.bookForms.comingSoon}</span>
+        ) : (
+          <Icon name="arrow-up-right" size={12} />
+        )}
       </a>
     ))}
   </div>
 </div>
 
+<script is:inline>
+  // Click-based dropdown toggle: hoạt động trên cả mobile (hover) và desktop.
+  // Hover trên desktop vẫn open qua CSS. Click outside để close.
+  (function () {
+    const wrappers = document.querySelectorAll("[data-book]");
+    wrappers.forEach(function (wrapper) {
+      const btn = wrapper.querySelector("[data-book-toggle]");
+      const menu = wrapper.querySelector("[data-book-menu]");
+      if (!btn || !menu) return;
+
+      function close() {
+        wrapper.classList.remove("open");
+        btn.setAttribute("aria-expanded", "false");
+      }
+      function open() {
+        wrapper.classList.add("open");
+        btn.setAttribute("aria-expanded", "true");
+      }
+
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (wrapper.classList.contains("open")) {
+          close();
+        } else {
+          // Đóng dropdown khác trước khi mở
+          document.querySelectorAll("[data-book].open").forEach(function (w) {
+            if (w !== wrapper) {
+              w.classList.remove("open");
+              const b = w.querySelector("[data-book-toggle]");
+              if (b) b.setAttribute("aria-expanded", "false");
+            }
+          });
+          open();
+        }
+      });
+
+      // Click vào item → đóng dropdown (trừ item disabled)
+      menu.querySelectorAll(".book-dropdown-item").forEach(function (item) {
+        item.addEventListener("click", function (e) {
+          if (item.classList.contains("disabled")) {
+            e.preventDefault();
+            return;
+          }
+          close();
+        });
+      });
+    });
+
+    // Click ngoài → đóng tất cả
+    document.addEventListener("click", function (e) {
+      document.querySelectorAll("[data-book].open").forEach(function (w) {
+        if (!w.contains(e.target)) {
+          w.classList.remove("open");
+          const b = w.querySelector("[data-book-toggle]");
+          if (b) b.setAttribute("aria-expanded", "false");
+        }
+      });
+    });
+
+    // ESC → đóng
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        document.querySelectorAll("[data-book].open").forEach(function (w) {
+          w.classList.remove("open");
+          const b = w.querySelector("[data-book-toggle]");
+          if (b) b.setAttribute("aria-expanded", "false");
+        });
+      }
+    });
+  })();
+</script>
+
 <style>
-  /* Wrapper giữ dropdown absolute positioned bên dưới button. */
   .book-wrapper {
     position: relative;
     display: inline-block;
@@ -63,8 +147,11 @@ const dropdownItems = [
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    font-family: inherit;
     font-weight: 600;
     text-decoration: none;
+    border: none;
+    cursor: pointer;
     border-radius: var(--radius-md);
     transition:
       background-color 0.15s ease,
@@ -104,14 +191,13 @@ const dropdownItems = [
   }
 
   /* ===== DROPDOWN =====
-     Hiện khi hover wrapper hoặc focus vào bất kỳ element con nào (keyboard).
-     Pseudo ::before tạo "cầu nối" vô hình 6px giữa button và menu để chuột
-     di chuyển qua gap mà không trigger mouseleave → đóng menu. */
+     Open qua class .open (click-based). Trên desktop pointer, hover
+     cũng mở (fallback cho muscle memory). ::before là cầu nối chuột. */
   .book-dropdown {
     position: absolute;
     top: calc(100% + 6px);
     right: 0;
-    min-width: 100%;
+    min-width: 220px;
     padding: 6px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -127,7 +213,6 @@ const dropdownItems = [
       opacity 0.15s ease,
       transform 0.15s ease;
     z-index: 20;
-    white-space: nowrap;
   }
   .book-dropdown::before {
     content: "";
@@ -138,11 +223,18 @@ const dropdownItems = [
     height: 6px;
   }
 
-  .book-wrapper:hover .book-dropdown,
-  .book-wrapper:focus-within .book-dropdown {
+  .book-wrapper.open .book-dropdown {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+  }
+  @media (hover: hover) {
+    .book-wrapper:hover .book-dropdown,
+    .book-wrapper:focus-within .book-dropdown {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
   }
 
   .book-dropdown-item {
@@ -150,7 +242,7 @@ const dropdownItems = [
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 8px 10px;
+    padding: 10px 12px;
     font-size: 13px;
     font-weight: 500;
     color: var(--color-text-muted);
@@ -165,12 +257,26 @@ const dropdownItems = [
     background: var(--color-surface-2);
     color: var(--color-text);
   }
-
-  /* Mobile: không có hover thực sự → ẩn dropdown.
-     Tap vào main button vẫn dẫn tới form mặc định theo locale. */
-  @media (hover: none) {
-    .book-dropdown {
-      display: none;
-    }
+  .book-dropdown-item.disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .book-dropdown-item.disabled:hover {
+    background: transparent;
+    color: var(--color-text-muted);
+  }
+  .book-dropdown-label {
+    flex: 1;
+  }
+  .book-dropdown-badge {
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: var(--color-surface-2);
+    color: var(--color-text-subtle);
+    border: 1px solid var(--color-border);
   }
 </style>

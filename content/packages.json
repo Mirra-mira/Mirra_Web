@@ -184,6 +184,214 @@
       ]
     }
   },
+  "gameModel": {
+    "intro": {
+      "vi": "Dựng model nhân vật 3D phong cách anime cho game, từ thiết kế 2D khách cung cấp. Phạm vi: modeling, rigging, blendshape. Bàn giao file FBX kèm texture.",
+      "en": "3D anime-style character models for games, built from your 2D character design. Scope: modeling, rigging, blendshapes. Delivered as FBX with textures."
+    },
+    "includes": {
+      "vi": [
+        "Model anime, dưới giới hạn tris khách yêu cầu (mặc định dưới 100k tris)",
+        "Rig chuẩn Humanoid cho Unity, dùng được animation có sẵn; FBX được test import vào Unity trước khi bàn giao",
+        "Xương cho tóc và các phần vải dài (váy, áo choàng…) để khách cài vật lý",
+        "Tách riêng đầu và tóc khi game có góc nhìn thứ nhất, để ẩn khi camera ở trong đầu nhân vật",
+        "Quyền sử dụng thương mại (đã bao gồm trong giá)",
+        "Gói blendshape cơ bản: 5 khẩu hình a-i-u-e-o, chớp mắt, 4 biểu cảm. Biểu cảm xuyên suốt có thể làm khuôn mặt mặc định của model"
+      ],
+      "en": [
+        "Anime model, within your tris limit (default under 100k tris)",
+        "Humanoid rig for Unity, compatible with existing animations; FBX is test-imported into Unity before delivery",
+        "Bones for hair and long cloth parts (skirts, capes…) so you can set up physics",
+        "Separated head and hair for first-person games, hideable when the camera is inside the character's head",
+        "Commercial usage rights (included in the price)",
+        "Basic blendshape pack: 5 mouth shapes a-i-u-e-o, blink, 4 expressions. A persistent expression can be set as the model's default face"
+      ]
+    },
+    "excludes": {
+      "vi": [
+        "Animation",
+        "Cài đặt vật lý, collider, shader, prefab, animator trong engine (phía khách thực hiện)",
+        "Thiết kế nhân vật từ đầu (cần có thiết kế 2D)"
+      ],
+      "en": [
+        "Animation",
+        "Physics setup, colliders, shaders, prefabs, animator in the engine (handled on your side)",
+        "Character design from scratch (a 2D design is required)"
+      ]
+    },
+    "clientTypes": [
+      {
+        "id": "indie",
+        "label": { "vi": "Indie", "en": "Indie" },
+        "description": {
+          "vi": "Cá nhân hoặc nhóm dưới 5 người, tự bỏ vốn, chưa có nhà phát hành hay nhà đầu tư.",
+          "en": "Individual or team under 5 people, self-funded, without a publisher or investor."
+        }
+      },
+      {
+        "id": "studio",
+        "label": { "vi": "Studio", "en": "Studio" },
+        "description": {
+          "vi": "Công ty, hoặc dự án có nhà phát hành / nhà đầu tư. Gói Studio bao gồm thêm: hợp đồng khi có yêu cầu, giữ bí mật model đến khi game công bố (NDA cơ bản).",
+          "en": "A company, or a project backed by a publisher / investor. Studio tier also includes: contract on request, model confidentiality until the game is announced (basic NDA)."
+        }
+      }
+    ],
+    "tiers": [
+      {
+        "id": "simple",
+        "label": { "vi": "Đơn giản", "en": "Simple" },
+        "description": {
+          "vi": "Outfit gọn, ít phụ kiện, không giáp.",
+          "en": "Clean outfit, few accessories, no armor."
+        },
+        "indie": { "vnd": 7000000, "usd": 280 },
+        "studio": { "vnd": 9000000, "usd": 350 }
+      },
+      {
+        "id": "medium",
+        "label": { "vi": "Vừa", "en": "Medium" },
+        "description": {
+          "vi": "Outfit nhiều lớp, vải rủ/bay nhiều, có giáp/chi tiết kim loại hoặc vũ khí.",
+          "en": "Layered outfit, flowing cloth, armor/metal details or weapons."
+        },
+        "indie": {
+          "min": { "vnd": 8000000, "usd": 320 },
+          "max": { "vnd": 9000000, "usd": 350 }
+        },
+        "studio": {
+          "min": { "vnd": 10500000, "usd": 410 },
+          "max": { "vnd": 12000000, "usd": 470 }
+        }
+      },
+      {
+        "id": "complex",
+        "label": { "vi": "Phức tạp", "en": "Complex" },
+        "description": {
+          "vi": "Nhiều giáp, bất đối xứng, tóc/vải nhiều lớp, vũ khí phức tạp.",
+          "en": "Heavy armor, asymmetrical designs, layered hair/cloth, complex weapons."
+        },
+        "indie": { "vnd": 10000000, "usd": 390 },
+        "studio": { "vnd": 13000000, "usd": 510 }
+      }
+    ],
+    "pricingNote": {
+      "vi": "Giá chính xác được chốt sau khi xem thiết kế. Nếu thông tin phân loại khai không đúng, artist có quyền điều chỉnh giá theo đúng loại.",
+      "en": "Final price is confirmed after reviewing the design. If the declared client category doesn't match reality, the artist may adjust the price accordingly."
+    },
+    "surcharges": [
+      {
+        "id": "extra_complex",
+        "label": {
+          "vi": "Thiết kế phức tạp hơn mức Phức tạp",
+          "en": "Design more complex than the Complex tier"
+        },
+        "value": {
+          "vi": "Báo giá riêng",
+          "en": "Custom quote"
+        }
+      },
+      {
+        "id": "missing_views",
+        "label": {
+          "vi": "Thiết kế thiếu góc nhìn (sau, hông)",
+          "en": "Design missing views (back, side)"
+        },
+        "value": {
+          "vi": "+15%",
+          "en": "+15%"
+        }
+      },
+      {
+        "id": "extra_expression",
+        "label": {
+          "vi": "Biểu cảm thêm ngoài gói",
+          "en": "Extra expression beyond the pack"
+        },
+        "value": {
+          "vi": "50.000đ / biểu cảm",
+          "en": "$2 / expression"
+        }
+      },
+      {
+        "id": "repeat_customer",
+        "label": {
+          "vi": "Khách quay lại đặt nhân vật tiếp theo",
+          "en": "Returning customer, next character"
+        },
+        "value": {
+          "vi": "Ưu đãi 5–10%",
+          "en": "5–10% discount"
+        }
+      }
+    ],
+    "process": {
+      "vi": [
+        "Khách gửi thiết kế nhân vật và trả lời các câu hỏi bên dưới",
+        "Báo giá chính xác",
+        "Cọc 50%",
+        "Dựng khối thô → khách duyệt",
+        "Hoàn thiện model và texture",
+        "Rig và blendshape",
+        "Gửi preview, khách thanh toán 50% còn lại",
+        "Bàn giao file FBX"
+      ],
+      "en": [
+        "Client sends the character design and answers the questions below",
+        "Final quote",
+        "50% deposit",
+        "Rough blockout → client approval",
+        "Finalize model and texture",
+        "Rig and blendshapes",
+        "Send preview, client pays the remaining 50%",
+        "Deliver the FBX file"
+      ]
+    },
+    "terms": {
+      "vi": [
+        "Thời gian thông thường: khoảng 3 tuần kể từ khi nhận cọc và đủ tài liệu.",
+        "Cập nhật tiến độ mỗi Chủ nhật.",
+        "3 lần chỉnh sửa miễn phí, sau đó mỗi lần tính 5% giá trị đơn.",
+        "Bảo hành lỗi kỹ thuật (weight paint, texture, rig) miễn phí 1 tháng sau bàn giao; không bảo hành lỗi do cài đặt vật lý/engine phía khách hoặc do bên thứ ba chỉnh sửa.",
+        "Khi các góc nhìn trong thiết kế mâu thuẫn nhau, lấy góc trước làm chuẩn; chi tiết chưa rõ do artist xử lý và khách duyệt ở mốc dựng khối thô.",
+        "Khách chịu trách nhiệm về quyền sử dụng bản thiết kế gốc (bao gồm thiết kế tạo bằng AI).",
+        "Hủy đơn đơn phương từ phía khách: không hoàn cọc."
+      ],
+      "en": [
+        "Typical turnaround: about 3 weeks from receiving the deposit and all materials.",
+        "Progress updates every Sunday.",
+        "3 free revisions, then 5% of the order value per subsequent revision.",
+        "Free warranty for technical issues (weight paint, texture, rig) for 1 month after delivery; does not cover issues from your physics/engine setup or third-party edits.",
+        "When reference views contradict each other, the front view is treated as canonical; unclear details are decided by the artist and approved by the client at the blockout stage.",
+        "The client is responsible for the usage rights of the original design (including AI-generated designs).",
+        "Unilateral cancellation by the client: deposit is non-refundable."
+      ]
+    },
+    "questions": {
+      "vi": [
+        "Game làm bằng engine nào?",
+        "Game dự định phát hành thế nào: bán trên Steam/store, miễn phí, hay nội bộ/học tập?",
+        "Có cảnh cận mặt nhân vật không? Camera góc nhìn thứ nhất, thứ ba hay từ xa?",
+        "Nhân vật có cần khẩu hình khi nói không?",
+        "Cần những biểu cảm nào?",
+        "Giới hạn tris (nếu có)?",
+        "Deadline mong muốn?",
+        "Bên bạn là studio hay nhóm/cá nhân làm game độc lập?",
+        "Đính kèm thiết kế nhân vật (càng nhiều góc càng tốt)"
+      ],
+      "en": [
+        "Which engine is the game built in?",
+        "Release plan: sold on Steam/store, free, or internal/educational?",
+        "Are there close-up shots of the character? First-person, third-person, or far-away camera?",
+        "Does the character need mouth shapes for talking?",
+        "Which expressions do you need?",
+        "Tris limit (if any)?",
+        "Desired deadline?",
+        "Are you a studio or an indie team/individual?",
+        "Attach the character design (as many angles as possible)"
+      ]
+    }
+  },
   "extraOutfits": {
     "intro": {
       "vi": "Mỗi gói đã bao gồm 1 outfit. Muốn thêm outfit khác, bạn mua theo bảng dưới. Cột 'cơ bản/chi tiết' tính theo độ phức tạp của outfit.",

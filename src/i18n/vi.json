@@ -10,8 +10,9 @@
   },
 
   "bookForms": {
-    "vi": "Form tiếng Việt",
-    "en": "English form"
+    "vtuber": "VTuber & VRChat Form",
+    "game": "Game Model Form",
+    "comingSoon": "Sắp mở"
   },
 
   "theme": {
@@ -68,6 +69,19 @@
     "sectionAnimationsTitle": "Animation cơ bản (VRChat)",
     "sectionAnimationsConditionsTitle": "Điều kiện",
 
+    "sectionGameTag": "Phần IV",
+    "sectionGameTitle": "Model Game",
+    "sectionGameTierCol": "Mức độ",
+    "sectionGameIncludesTitle": "Bao gồm",
+    "sectionGameExcludesTitle": "Không bao gồm",
+    "sectionGamePricingTitle": "Bảng giá",
+    "sectionGameClientTypesTitle": "Phân loại khách",
+    "sectionGameSurchargesTitle": "Phụ phí & ưu đãi",
+    "sectionGameProcessTitle": "Quy trình",
+    "sectionGameTermsTitle": "Điều khoản",
+    "sectionGameQuestionsTitle": "Câu hỏi khi đặt hàng",
+    "sectionGameQuestionsIntro": "Chuẩn bị trước các thông tin này để quá trình báo giá nhanh hơn:",
+
     "ctaBookTitle": "Sẵn sàng đặt commission?",
     "ctaBookBody": "Form Google chi tiết các bước: chọn gói, mô tả yêu cầu, upload ref. Mình phản hồi trong vòng 1–2 ngày.",
     "ctaReadTos": "Đọc điều khoản dịch vụ trước khi đặt →"
@@ -76,7 +90,9 @@
   "tos": {
     "title": "Điều khoản dịch vụ",
     "subtitle": "Vui lòng đọc kỹ trước khi đặt commission.",
-    "ctaBook": "Mình đã đọc, đặt commission"
+    "ctaBook": "Mình đã đọc, đặt commission",
+    "tabVtuber": "VTuber & VRChat",
+    "tabGame": "Model Game"
   },
 
   "about": {

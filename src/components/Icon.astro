@@ -7,6 +7,7 @@ export interface Props {
     | "moon"
     | "arrow-right"
     | "arrow-up-right"
+    | "chevron-down"
     | "check"
     | "copy"
     | "menu"
@@ -77,6 +78,13 @@ const brandProps = {
   name === "arrow-up-right" && (
     <svg {...commonProps}>
       <path d="M7 17L17 7M8 7h9v9" />
+    </svg>
+  )
+}
+{
+  name === "chevron-down" && (
+    <svg {...commonProps}>
+      <path d="M6 9l6 6 6-6" />
     </svg>
   )
 }

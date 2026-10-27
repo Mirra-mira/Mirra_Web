@@ -1,7 +1,13 @@
 {
   "bookingUrl": {
-    "vi": "https://forms.gle/ak5KUyNKHtYFZKZm9",
-    "en": "https://forms.gle/6zPgCDgjvFZGYkp87"
+    "vtuber": {
+      "vi": "https://forms.gle/ak5KUyNKHtYFZKZm9",
+      "en": "https://forms.gle/6zPgCDgjvFZGYkp87"
+    },
+    "game": {
+      "vi": "[TODO: Game Model VI Form]",
+      "en": "[TODO: Game Model EN Form]"
+    }
   },
   "contact": {
     "facebook": "https://www.facebook.com/profile.php?id=61559005453114&locale=vi_VN",

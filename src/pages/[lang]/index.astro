@@ -5,6 +5,7 @@ import BookButton from "../../components/BookButton.astro";
 import PriceTable from "../../components/PriceTable.astro";
 import PackageCard from "../../components/PackageCard.astro";
 import OutfitTable from "../../components/OutfitTable.astro";
+import GameModelTable from "../../components/GameModelTable.astro";
 import TOC from "../../components/TOC.astro";
 import { getUI, formatPrice, LOCALES, type Locale } from "../../i18n";
 import packages from "../../../content/packages.json";
@@ -20,7 +21,9 @@ const blendshape = packages.surcharges.find((s) => s.id === "extra_blendshape")!
 const missingRef = packages.surcharges.find((s) => s.id === "missing_reference")!;
 const arkit = packages.surcharges.find((s) => s.id === "arkit")!;
 
-// TOC items cho trang chủ: 3 section Phần I/II/III
+const gameModel = packages.gameModel;
+
+// TOC items cho trang chủ: 4 section Phần I/II/III/IV
 const tocItems = [
   {
     id: "packages",
@@ -33,6 +36,10 @@ const tocItems = [
   {
     id: "animations",
     label: `${t.home.sectionAnimationsTag} · ${t.home.sectionAnimationsTitle}`,
+  },
+  {
+    id: "game-model",
+    label: `${t.home.sectionGameTag} · ${t.home.sectionGameTitle}`,
   },
 ];
 ---
@@ -153,6 +160,92 @@ const tocItems = [
         <ul class="anim-conditions-list">
           {packages.animations.conditions[lang].map((c) => <li>{c}</li>)}
         </ul>
+      </div>
+    </div>
+  </section>
+
+  {/* ===== PART IV: GAME MODEL =====
+       Section-alt để tạo nhịp xen kẽ background với Phần III (section mặc định). */}
+  <section class="section section-alt" id="game-model">
+    <div class="section-inner">
+      <div class="section-head">
+        <span class="section-tag">{t.home.sectionGameTag}</span>
+        <h2 class="section-title">{t.home.sectionGameTitle}</h2>
+        <p class="section-intro">{gameModel.intro[lang]}</p>
+      </div>
+
+      {/* Bao gồm / Không bao gồm — 2 card side-by-side trên desktop */}
+      <div class="game-scope">
+        <div class="game-scope-card game-scope-includes">
+          <h3 class="game-scope-title">{t.home.sectionGameIncludesTitle}</h3>
+          <ul>
+            {gameModel.includes[lang].map((item) => (
+              <li>
+                <Icon name="check" size={14} class="check" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div class="game-scope-card game-scope-excludes">
+          <h3 class="game-scope-title">{t.home.sectionGameExcludesTitle}</h3>
+          <ul>
+            {gameModel.excludes[lang].map((item) => (
+              <li>
+                <span class="dash" aria-hidden="true">—</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Bảng giá 3 × 2 */}
+      <GameModelTable locale={lang} />
+
+      {/* Phụ phí & ưu đãi */}
+      <div class="game-surcharges">
+        <h3 class="game-block-title">{t.home.sectionGameSurchargesTitle}</h3>
+        <div class="game-surcharges-grid">
+          {gameModel.surcharges.map((s) => (
+            <div class="game-surcharge-card">
+              <p class="game-surcharge-label">{s.label[lang]}</p>
+              <p class="game-surcharge-value">{s.value[lang]}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Quy trình — ordered list đánh số, nhẹ nhàng */}
+      <div class="game-process">
+        <h3 class="game-block-title">{t.home.sectionGameProcessTitle}</h3>
+        <ol class="game-process-list">
+          {gameModel.process[lang].map((step) => (
+            <li>{step}</li>
+          ))}
+        </ol>
+      </div>
+
+      {/* Điều khoản — dạng list bullet dashed box, đồng nhất với
+          .outfit-conditions / .anim-conditions */}
+      <div class="game-terms">
+        <h3 class="game-terms-title">{t.home.sectionGameTermsTitle}</h3>
+        <ul>
+          {gameModel.terms[lang].map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Câu hỏi khi đặt hàng — list đánh số, để khách chuẩn bị trước khi mở form */}
+      <div class="game-questions">
+        <h3 class="game-block-title">{t.home.sectionGameQuestionsTitle}</h3>
+        <p class="game-questions-intro">{t.home.sectionGameQuestionsIntro}</p>
+        <ol class="game-questions-list">
+          {gameModel.questions[lang].map((q) => (
+            <li>{q}</li>
+          ))}
+        </ol>
       </div>
     </div>
   </section>
@@ -459,6 +552,181 @@ const tocItems = [
     align-items: center;
     gap: 12px;
     margin-top: 8px;
+  }
+
+  /* ===== PART IV: GAME MODEL ===== */
+  /* Scope cards: Bao gồm / Không bao gồm */
+  .game-scope {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .game-scope {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .game-scope-card {
+    padding: 20px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+  .game-scope-title {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .game-scope-card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .game-scope-card li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--color-text-muted);
+  }
+  .game-scope-excludes .dash {
+    display: inline-flex;
+    width: 14px;
+    flex-shrink: 0;
+    color: var(--color-text-subtle);
+    font-weight: 700;
+    margin-top: 1px;
+  }
+
+  /* Shared tiêu đề block con trong Part IV */
+  .game-block-title {
+    margin: 0 0 12px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Surcharges & ưu đãi */
+  .game-surcharges-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .game-surcharges-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 1024px) {
+    .game-surcharges-grid {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+  }
+  .game-surcharge-card {
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+  .game-surcharge-label {
+    margin: 0 0 6px 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+  .game-surcharge-value {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-warning);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Quy trình: ordered list đơn giản */
+  .game-process-list {
+    list-style: decimal;
+    margin: 0;
+    padding-left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .game-process-list li {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--color-text-muted);
+  }
+  .game-process-list li::marker {
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  /* Điều khoản: giống .outfit-conditions / .anim-conditions */
+  .game-terms {
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-2);
+    border: 1px dashed var(--color-border-strong);
+  }
+  .game-terms-title {
+    margin: 0 0 10px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .game-terms ul {
+    list-style: disc;
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .game-terms li {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+  .game-terms li::marker {
+    color: var(--color-text-subtle);
+  }
+
+  /* Câu hỏi khi đặt hàng */
+  .game-questions-intro {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: var(--color-text-muted);
+    line-height: 1.55;
+  }
+  .game-questions-list {
+    list-style: decimal;
+    margin: 0;
+    padding: 16px 20px 16px 40px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .game-questions-list li {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+  .game-questions-list li::marker {
+    color: var(--color-text-subtle);
   }
 
   /* Shared */

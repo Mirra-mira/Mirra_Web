@@ -1,0 +1,205 @@
+---
+// Bảng giá Model Game: 3 mức độ (Đơn giản / Vừa / Phức tạp) × 2 loại khách
+// (Indie / Studio). Mỗi ô có thể là single price hoặc range (min–max).
+// Mobile: table auto-scroll ngang (giữ pattern giống OutfitTable).
+import { getUI, formatPrice, type Locale } from "../i18n";
+import packages from "../../content/packages.json";
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getUI(locale);
+const { tiers, clientTypes, pricingNote } = packages.gameModel;
+
+// Format cell: single price → "7.000.000 ₫"; range → "8.000.000 ₫ – 9.000.000 ₫"
+function formatCell(cell: any): string {
+  if (!cell) return "";
+  if ("min" in cell && "max" in cell) {
+    return `${formatPrice(cell.min, locale)} – ${formatPrice(cell.max, locale)}`;
+  }
+  return formatPrice(cell, locale);
+}
+---
+
+<div class="game-pricing">
+  {/* Phân loại khách — card ngắn trước bảng để khách tự nhận biết loại nào */}
+  <div class="client-types">
+    <h4 class="client-types-title">{t.home.sectionGameClientTypesTitle}</h4>
+    <div class="client-types-grid">
+      {clientTypes.map((ct) => (
+        <div class="client-type-card">
+          <p class="client-type-label">{ct.label[locale]}</p>
+          <p class="client-type-desc">{ct.description[locale]}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Bảng 3 cột: Mức độ | Indie | Studio */}
+  <div class="pricing-table-card">
+    <h4 class="pricing-table-title">{t.home.sectionGamePricingTitle}</h4>
+    <div class="pricing-table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-tier">{t.home.sectionGameTierCol}</th>
+            {clientTypes.map((ct) => (
+              <th>{ct.label[locale]}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {tiers.map((tier) => (
+            <tr>
+              <td class="col-tier">
+                <div class="tier-label">{tier.label[locale]}</div>
+                <div class="tier-desc">{tier.description[locale]}</div>
+              </td>
+              <td class="price">{formatCell(tier.indie)}</td>
+              <td class="price">{formatCell(tier.studio)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="pricing-note">{pricingNote[locale]}</p>
+  </div>
+</div>
+
+<style>
+  .game-pricing {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Client types: 2 card nhỏ phân biệt Indie / Studio */
+  .client-types {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .client-types-title {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .client-types-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .client-types-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .client-type-card {
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+  .client-type-label {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .client-type-desc {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--color-text-muted);
+  }
+
+  /* Bảng giá */
+  .pricing-table-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+  .pricing-table-title {
+    margin: 0;
+    padding: 14px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    background: var(--color-surface-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .pricing-table-scroll {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th,
+  td {
+    padding: 14px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  thead th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    color: var(--color-text-subtle);
+  }
+  .col-tier {
+    min-width: 180px;
+  }
+  .tier-label {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+  .tier-desc {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--color-text-subtle);
+  }
+  .price {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+  .pricing-note {
+    margin: 0;
+    padding: 14px 18px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--color-text-subtle);
+    background: var(--color-surface-2);
+    border-top: 1px solid var(--color-border);
+  }
+
+  @media (max-width: 540px) {
+    th,
+    td {
+      padding: 12px;
+    }
+    .col-tier {
+      min-width: 140px;
+    }
+    .tier-label {
+      font-size: 13px;
+    }
+  }
+</style>

@@ -4,10 +4,25 @@ import BookButton from "../../components/BookButton.astro";
 import TOC from "../../components/TOC.astro";
 import { getUI, LOCALES, type Locale } from "../../i18n";
 
-// Import cả 2 bản MD rồi chọn theo locale. Astro render Markdown tại build-time.
+// Import cả 4 bản MD (2 locale × 2 tab) rồi chọn theo locale + tab.
+// Astro render Markdown tại build-time.
 // `headings` là array {depth, slug, text} do Astro auto-generate từ heading markdown.
-import { Content as ContentVi, getHeadings as getHeadingsVi } from "../../../content/vi/tos.md";
-import { Content as ContentEn, getHeadings as getHeadingsEn } from "../../../content/en/tos.md";
+import {
+  Content as VtuberVi,
+  getHeadings as getHeadingsVtuberVi,
+} from "../../../content/vi/tos.md";
+import {
+  Content as VtuberEn,
+  getHeadings as getHeadingsVtuberEn,
+} from "../../../content/en/tos.md";
+import {
+  Content as GameVi,
+  getHeadings as getHeadingsGameVi,
+} from "../../../content/vi/tos-game.md";
+import {
+  Content as GameEn,
+  getHeadings as getHeadingsGameEn,
+} from "../../../content/en/tos-game.md";
 
 export function getStaticPaths() {
   return LOCALES.map((lang) => ({ params: { lang } }));
@@ -15,18 +30,36 @@ export function getStaticPaths() {
 
 const { lang } = Astro.params as { lang: Locale };
 const t = getUI(lang);
-const Content = lang === "vi" ? ContentVi : ContentEn;
 
-// Lấy headings: giữ depth === 2 (các chương "1. Quy trình...", "2. Hình tham khảo"...)
-// Astro tự generate slug từ text để làm id anchor.
-const headings = lang === "vi" ? getHeadingsVi() : getHeadingsEn();
-const tocItems = headings
+// Pick content theo locale. Mỗi tab giữ cấu trúc riêng; nội dung VTuber giữ nguyên như cũ.
+const VtuberContent = lang === "vi" ? VtuberVi : VtuberEn;
+const GameContent = lang === "vi" ? GameVi : GameEn;
+const vtuberHeadings = lang === "vi" ? getHeadingsVtuberVi() : getHeadingsVtuberEn();
+const gameHeadings = lang === "vi" ? getHeadingsGameVi() : getHeadingsGameEn();
+
+// TOC chỉ hiện headings depth 2 (mục cấp 1 trong markdown).
+// Dùng heading của tab mặc định (vtuber) khi load. Khi switch tab, script
+// client sẽ refresh TOC — nhưng để đơn giản, mỗi tab có TOC riêng rendered
+// server-side, hiện/ẩn theo trạng thái tab.
+const vtuberTocItems = vtuberHeadings
   .filter((h) => h.depth === 2)
-  .map((h) => ({ id: h.slug, label: h.text }));
+  .map((h) => ({ id: `vtuber-${h.slug}`, label: h.text }));
+const gameTocItems = gameHeadings
+  .filter((h) => h.depth === 2)
+  .map((h) => ({ id: `game-${h.slug}`, label: h.text }));
 ---
 
 <BaseLayout locale={lang} currentPath="/tos" title={t.tos.title}>
-  <TOC items={tocItems} locale={lang} />
+  {/* TOC: render cả 2 bộ, CSS ẩn bộ không active theo data-tab trên <nav> cha.
+      Mình prefix id slug với "vtuber-" / "game-" để tránh trùng id khi
+      cả 2 content cùng ở DOM. */}
+  <div id="toc-vtuber" class="toc-slot" data-tab="vtuber">
+    <TOC items={vtuberTocItems} locale={lang} />
+  </div>
+  <div id="toc-game" class="toc-slot toc-slot-hidden" data-tab="game">
+    <TOC items={gameTocItems} locale={lang} />
+  </div>
+
   <section class="tos-section">
     <div class="tos-inner">
       <header class="tos-head">
@@ -34,8 +67,58 @@ const tocItems = headings
         <p class="tos-subtitle">{t.tos.subtitle}</p>
       </header>
 
-      <article class="prose-tos">
-        <Content />
+      {/* Tab bar: 2 tab, điều khiển bằng data-tab + sessionStorage. */}
+      <div class="tos-tabs" role="tablist" aria-label={t.tos.title}>
+        <button
+          type="button"
+          class="tos-tab active"
+          role="tab"
+          aria-selected="true"
+          data-tab-btn="vtuber"
+          id="tab-btn-vtuber"
+          aria-controls="tab-panel-vtuber"
+        >
+          {t.tos.tabVtuber}
+        </button>
+        <button
+          type="button"
+          class="tos-tab"
+          role="tab"
+          aria-selected="false"
+          data-tab-btn="game"
+          id="tab-btn-game"
+          aria-controls="tab-panel-game"
+        >
+          {t.tos.tabGame}
+        </button>
+      </div>
+
+      {/* Panel VTuber */}
+      <article
+        class="prose-tos tab-panel"
+        role="tabpanel"
+        id="tab-panel-vtuber"
+        data-tab-panel="vtuber"
+        aria-labelledby="tab-btn-vtuber"
+      >
+        {/* Wrap trong div để prefix anchor id — markdown-generated id (ví dụ
+            #1-workflow) sẽ bị duplicate giữa 2 tab. CSS :target không ảnh
+            hưởng, nhưng để TOC link đúng mình đã prefix slug thủ công bên trên.
+            Riêng với Astro, Content render với id gốc; để TOC khớp ta cần
+            rewrite heading id runtime. Làm đơn giản: dùng script bên dưới. */}
+        <VtuberContent />
+      </article>
+
+      {/* Panel Game Model — ẩn mặc định */}
+      <article
+        class="prose-tos tab-panel tab-panel-hidden"
+        role="tabpanel"
+        id="tab-panel-game"
+        data-tab-panel="game"
+        aria-labelledby="tab-btn-game"
+        hidden
+      >
+        <GameContent />
       </article>
 
       <div class="tos-cta">
@@ -44,6 +127,70 @@ const tocItems = headings
     </div>
   </section>
 </BaseLayout>
+
+<script is:inline>
+  (function () {
+    // Prefix heading id trong mỗi tab panel để match với TOC link.
+    // Astro gán id gốc (vd "1-quy-trinh-lam-viec"), ta thêm prefix tab.
+    function prefixHeadings(panelId, prefix) {
+      const panel = document.getElementById(panelId);
+      if (!panel) return;
+      const headings = panel.querySelectorAll("h1, h2, h3, h4, h5, h6");
+      headings.forEach(function (h) {
+        if (h.id && !h.id.startsWith(prefix)) {
+          h.id = prefix + h.id;
+        }
+      });
+    }
+    prefixHeadings("tab-panel-vtuber", "vtuber-");
+    prefixHeadings("tab-panel-game", "game-");
+
+    const STORAGE_KEY = "mirra.tos.tab";
+    const tabs = document.querySelectorAll("[data-tab-btn]");
+    const panels = document.querySelectorAll("[data-tab-panel]");
+    const tocSlots = document.querySelectorAll(".toc-slot");
+
+    function setTab(name) {
+      tabs.forEach(function (btn) {
+        const active = btn.getAttribute("data-tab-btn") === name;
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      panels.forEach(function (p) {
+        const active = p.getAttribute("data-tab-panel") === name;
+        p.classList.toggle("tab-panel-hidden", !active);
+        if (active) {
+          p.removeAttribute("hidden");
+        } else {
+          p.setAttribute("hidden", "");
+        }
+      });
+      tocSlots.forEach(function (slot) {
+        const active = slot.getAttribute("data-tab") === name;
+        slot.classList.toggle("toc-slot-hidden", !active);
+      });
+      try {
+        sessionStorage.setItem(STORAGE_KEY, name);
+      } catch (_e) {}
+    }
+
+    // Restore từ session hoặc URL hash (#game → tab game)
+    let initial = "vtuber";
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved === "game" || saved === "vtuber") initial = saved;
+    } catch (_e) {}
+    if (window.location.hash === "#game") initial = "game";
+    if (window.location.hash === "#vtuber") initial = "vtuber";
+    setTab(initial);
+
+    tabs.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        setTab(btn.getAttribute("data-tab-btn"));
+      });
+    });
+  })();
+</script>
 
 <style>
   .tos-section {
@@ -54,7 +201,7 @@ const tocItems = headings
     margin: 0 auto;
   }
   .tos-head {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     padding-bottom: 24px;
     border-bottom: 1px solid var(--color-border);
   }
@@ -70,6 +217,46 @@ const tocItems = headings
     font-size: 15px;
     color: var(--color-text-muted);
   }
+
+  /* ===== Tab bar ===== */
+  .tos-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 28px;
+    padding: 4px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    width: fit-content;
+  }
+  .tos-tab {
+    padding: 8px 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+  .tos-tab:hover {
+    color: var(--color-text);
+  }
+  .tos-tab.active {
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--color-shadow);
+  }
+
+  /* ===== Panel visibility ===== */
+  .tab-panel-hidden {
+    display: none;
+  }
+
   .tos-cta {
     margin-top: 48px;
     padding-top: 32px;
@@ -78,8 +265,14 @@ const tocItems = headings
     justify-content: center;
   }
 
-  /* Prose: tăng h1 thứ nhất trong markdown xuống h2 size vì page đã có h1 */
+  /* Prose: ẩn h1 đầu tiên trong markdown vì page đã có h1 */
   .prose-tos :global(h1):first-child {
     display: none;
+  }
+
+  /* ===== TOC slots =====
+     2 bộ TOC render cùng DOM, ẩn bộ không active. Script toggle class. */
+  .toc-slot-hidden :global(.toc) {
+    display: none !important;
   }
 </style>
