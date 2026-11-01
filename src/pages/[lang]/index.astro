@@ -23,29 +23,37 @@ const arkit = packages.surcharges.find((s) => s.id === "arkit")!;
 
 const gameModel = packages.gameModel;
 
-// TOC items cho trang chủ: 4 section Phần I/II/III/IV
-const tocItems = [
-  {
-    id: "packages",
-    label: `${t.home.sectionPackagesTag} · ${t.home.sectionPackagesTitle}`,
-  },
-  {
-    id: "outfits",
-    label: `${t.home.sectionOutfitsTag} · ${t.home.sectionOutfitsTitle}`,
-  },
-  {
-    id: "animations",
-    label: `${t.home.sectionAnimationsTag} · ${t.home.sectionAnimationsTitle}`,
-  },
-  {
-    id: "game-model",
-    label: `${t.home.sectionGameTag} · ${t.home.sectionGameTitle}`,
-  },
+// TOC items theo tab active (giống pattern bên tos.astro):
+//   • Tab VTuber: Phần I + Outfit (II) + Animation (III) — II và III nằm ngoài
+//     tab, dùng chung cho cả 2 tab (hiển thị dưới panel).
+//   • Tab Game: tách nhỏ các sub-section của Phần IV cho dễ nhảy, kèm II + III
+//     vì chúng ở cuối trang và vẫn thấy khi scroll xuống.
+const vtuberTocItems = [
+  { id: "packages", label: t.home.sectionPackagesTitle },
+  { id: "outfits", label: t.home.sectionOutfitsTitle },
+  { id: "animations", label: t.home.sectionAnimationsTitle },
+];
+const gameTocItems = [
+  { id: "game-scope", label: t.home.sectionGameIncludesTitle },
+  { id: "game-pricing", label: t.home.sectionGamePricingTitle },
+  { id: "game-surcharges", label: t.home.sectionGameSurchargesTitle },
+  { id: "game-process", label: t.home.sectionGameProcessTitle },
+  { id: "game-terms", label: t.home.sectionGameTermsTitle },
+  { id: "game-questions", label: t.home.sectionGameQuestionsTitle },
+  { id: "outfits", label: t.home.sectionOutfitsTitle },
+  { id: "animations", label: t.home.sectionAnimationsTitle },
 ];
 ---
 
 <BaseLayout locale={lang} currentPath="/">
-  <TOC items={tocItems} locale={lang} />
+  {/* 2 bộ TOC render cùng DOM, ẩn bộ không active theo data-tab + script.
+      Pattern giống /tos để nhất quán. */}
+  <div id="toc-vtuber" class="toc-slot" data-tab="vtuber">
+    <TOC items={vtuberTocItems} locale={lang} />
+  </div>
+  <div id="toc-game" class="toc-slot toc-slot-hidden" data-tab="game">
+    <TOC items={gameTocItems} locale={lang} />
+  </div>
   {/* ===== HERO ===== */}
   <section class="hero">
     <div class="hero-inner">
@@ -63,11 +71,56 @@ const tocItems = [
     </div>
   </section>
 
+  {/* ===== TAB BAR =====
+       2 tab chia nhánh dịch vụ: VTuber (Phần I) vs Model Game (Phần IV).
+       Phần II (Outfit) + Phần III (Animation) nằm ngoài 2 tab, dùng chung,
+       render ở cuối trang. */}
+  <div class="home-tabs-wrap">
+    <div class="home-tabs" role="tablist" aria-label={t.home.heroTag}>
+      <button
+        type="button"
+        class="home-tab active"
+        role="tab"
+        aria-selected="true"
+        data-tab-btn="vtuber"
+        id="home-tab-btn-vtuber"
+        aria-controls="home-tab-panel-vtuber"
+      >
+        {t.home.tabVtuber}
+      </button>
+      <button
+        type="button"
+        class="home-tab"
+        role="tab"
+        aria-selected="false"
+        data-tab-btn="game"
+        id="home-tab-btn-game"
+        aria-controls="home-tab-panel-game"
+      >
+        {t.home.tabGame}
+      </button>
+    </div>
+  </div>
+
+  {/* ===== PANEL VTUBER (Phần I) ===== */}
+  <div
+    class="home-tab-panel"
+    role="tabpanel"
+    id="home-tab-panel-vtuber"
+    data-tab-panel="vtuber"
+    aria-labelledby="home-tab-btn-vtuber"
+  >
+    {/* Nút đọc TOS tương ứng, ngay đầu panel */}
+    <div class="tab-tos-link-wrap">
+      <a class="link-ghost" href={`/${lang}/tos#vtuber`}>
+        {t.home.readTosOfTab}
+      </a>
+    </div>
+
   {/* ===== PART I: PACKAGES ===== */}
   <section class="section" id="packages">
     <div class="section-inner">
       <div class="section-head">
-        <span class="section-tag">{t.home.sectionPackagesTag}</span>
         <h2 class="section-title">{t.home.sectionPackagesTitle}</h2>
         <p class="section-intro">{t.home.sectionPackagesIntro}</p>
       </div>
@@ -122,22 +175,129 @@ const tocItems = [
     </div>
   </section>
 
-  {/* ===== PART II: EXTRA OUTFITS ===== */}
+  </div> {/* ===== END PANEL VTUBER ===== */}
+
+  {/* ===== PANEL GAME (Phần IV) =====
+       Ẩn mặc định. Script tab bên dưới sẽ toggle `hidden` + class khi switch. */}
+  <div
+    class="home-tab-panel home-tab-panel-hidden"
+    role="tabpanel"
+    id="home-tab-panel-game"
+    data-tab-panel="game"
+    aria-labelledby="home-tab-btn-game"
+    hidden
+  >
+    <div class="tab-tos-link-wrap">
+      <a class="link-ghost" href={`/${lang}/tos#game`}>
+        {t.home.readTosOfTab}
+      </a>
+    </div>
+
+    {/* ===== PART IV: GAME MODEL =====
+         Dùng .section (default bg) thay cho section-alt cũ để nhịp xen kẽ với
+         Phần II (section-alt) nằm ngay dưới panel Game vẫn đẹp cho cả 2 tab. */}
+    <section class="section" id="game-model">
+      <div class="section-inner">
+        <div class="section-head">
+          <h2 class="section-title">{t.home.sectionGameTitle}</h2>
+          <p class="section-intro">{gameModel.intro[lang]}</p>
+        </div>
+
+        {/* Bao gồm / Không bao gồm — 2 card side-by-side trên desktop */}
+        <div class="game-scope" id="game-scope">
+          <div class="game-scope-card game-scope-includes">
+            <h3 class="game-scope-title">{t.home.sectionGameIncludesTitle}</h3>
+            <ul>
+              {gameModel.includes[lang].map((item) => (
+                <li>
+                  <Icon name="check" size={14} class="check" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="game-scope-card game-scope-excludes">
+            <h3 class="game-scope-title">{t.home.sectionGameExcludesTitle}</h3>
+            <ul>
+              {gameModel.excludes[lang].map((item) => (
+                <li>
+                  <span class="dash" aria-hidden="true">—</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Bảng giá 3 × 2 — wrap div để có anchor id cho TOC jump */}
+        <div id="game-pricing">
+          <GameModelTable locale={lang} />
+        </div>
+
+        {/* Phụ phí & ưu đãi */}
+        <div class="game-surcharges" id="game-surcharges">
+          <h3 class="game-block-title">{t.home.sectionGameSurchargesTitle}</h3>
+          <div class="game-surcharges-grid">
+            {gameModel.surcharges.map((s) => (
+              <div class="game-surcharge-card">
+                <p class="game-surcharge-label">{s.label[lang]}</p>
+                <p class="game-surcharge-value">{s.value[lang]}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quy trình — ordered list đánh số, nhẹ nhàng */}
+        <div class="game-process" id="game-process">
+          <h3 class="game-block-title">{t.home.sectionGameProcessTitle}</h3>
+          <ol class="game-process-list">
+            {gameModel.process[lang].map((step) => (
+              <li>{step}</li>
+            ))}
+          </ol>
+        </div>
+
+        {/* Điều khoản — dạng list bullet dashed box, đồng nhất với
+            .outfit-conditions / .anim-conditions */}
+        <div class="game-terms" id="game-terms">
+          <h3 class="game-terms-title">{t.home.sectionGameTermsTitle}</h3>
+          <ul>
+            {gameModel.terms[lang].map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Câu hỏi khi đặt hàng — list đánh số, để khách chuẩn bị trước khi mở form */}
+        <div class="game-questions" id="game-questions">
+          <h3 class="game-block-title">{t.home.sectionGameQuestionsTitle}</h3>
+          <p class="game-questions-intro">{t.home.sectionGameQuestionsIntro}</p>
+          <ol class="game-questions-list">
+            {gameModel.questions[lang].map((q) => (
+              <li>{q}</li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </section>
+  </div> {/* ===== END PANEL GAME ===== */}
+
+  {/* ===== PART II: EXTRA OUTFITS =====
+       Ngoài tab: Outfit là add-on dùng chung, hiển thị cho cả 2 tab. */}
   <section class="section section-alt" id="outfits">
     <div class="section-inner">
       <div class="section-head">
-        <span class="section-tag">{t.home.sectionOutfitsTag}</span>
         <h2 class="section-title">{t.home.sectionOutfitsTitle}</h2>
       </div>
       <OutfitTable locale={lang} />
     </div>
   </section>
 
-  {/* ===== PART III: ANIMATIONS ===== */}
+  {/* ===== PART III: ANIMATIONS =====
+       Ngoài tab, dùng chung. Đổi sang .section (default bg) để nhịp xen kẽ. */}
   <section class="section" id="animations">
     <div class="section-inner">
       <div class="section-head">
-        <span class="section-tag">{t.home.sectionAnimationsTag}</span>
         <h2 class="section-title">{t.home.sectionAnimationsTitle}</h2>
       </div>
 
@@ -164,92 +324,6 @@ const tocItems = [
     </div>
   </section>
 
-  {/* ===== PART IV: GAME MODEL =====
-       Section-alt để tạo nhịp xen kẽ background với Phần III (section mặc định). */}
-  <section class="section section-alt" id="game-model">
-    <div class="section-inner">
-      <div class="section-head">
-        <span class="section-tag">{t.home.sectionGameTag}</span>
-        <h2 class="section-title">{t.home.sectionGameTitle}</h2>
-        <p class="section-intro">{gameModel.intro[lang]}</p>
-      </div>
-
-      {/* Bao gồm / Không bao gồm — 2 card side-by-side trên desktop */}
-      <div class="game-scope">
-        <div class="game-scope-card game-scope-includes">
-          <h3 class="game-scope-title">{t.home.sectionGameIncludesTitle}</h3>
-          <ul>
-            {gameModel.includes[lang].map((item) => (
-              <li>
-                <Icon name="check" size={14} class="check" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div class="game-scope-card game-scope-excludes">
-          <h3 class="game-scope-title">{t.home.sectionGameExcludesTitle}</h3>
-          <ul>
-            {gameModel.excludes[lang].map((item) => (
-              <li>
-                <span class="dash" aria-hidden="true">—</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {/* Bảng giá 3 × 2 */}
-      <GameModelTable locale={lang} />
-
-      {/* Phụ phí & ưu đãi */}
-      <div class="game-surcharges">
-        <h3 class="game-block-title">{t.home.sectionGameSurchargesTitle}</h3>
-        <div class="game-surcharges-grid">
-          {gameModel.surcharges.map((s) => (
-            <div class="game-surcharge-card">
-              <p class="game-surcharge-label">{s.label[lang]}</p>
-              <p class="game-surcharge-value">{s.value[lang]}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Quy trình — ordered list đánh số, nhẹ nhàng */}
-      <div class="game-process">
-        <h3 class="game-block-title">{t.home.sectionGameProcessTitle}</h3>
-        <ol class="game-process-list">
-          {gameModel.process[lang].map((step) => (
-            <li>{step}</li>
-          ))}
-        </ol>
-      </div>
-
-      {/* Điều khoản — dạng list bullet dashed box, đồng nhất với
-          .outfit-conditions / .anim-conditions */}
-      <div class="game-terms">
-        <h3 class="game-terms-title">{t.home.sectionGameTermsTitle}</h3>
-        <ul>
-          {gameModel.terms[lang].map((item) => (
-            <li>{item}</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Câu hỏi khi đặt hàng — list đánh số, để khách chuẩn bị trước khi mở form */}
-      <div class="game-questions">
-        <h3 class="game-block-title">{t.home.sectionGameQuestionsTitle}</h3>
-        <p class="game-questions-intro">{t.home.sectionGameQuestionsIntro}</p>
-        <ol class="game-questions-list">
-          {gameModel.questions[lang].map((q) => (
-            <li>{q}</li>
-          ))}
-        </ol>
-      </div>
-    </div>
-  </section>
-
   {/* ===== CTA BOOK ===== */}
   <section class="cta-section">
     <div class="cta-inner">
@@ -263,7 +337,120 @@ const tocItems = [
   </section>
 </BaseLayout>
 
+<script is:inline>
+  (function () {
+    // Tab switcher cho trang chủ. Pattern tương tự /tos nhưng storage key riêng
+    // (`mirra.home.tab`) để tab home và tab tos độc lập nhau. Hash URL dùng
+    // chung `#vtuber`/`#game` — khớp với anchor trên /tos, nên khi user bấm
+    // "Đọc TOS" từ tab Game trên home sẽ sang /tos#game và tab game ở đó auto
+    // mở (tos.astro cũng đọc hash).
+    const STORAGE_KEY = "mirra.home.tab";
+    const tabs = document.querySelectorAll(".home-tabs [data-tab-btn]");
+    const panels = document.querySelectorAll(".home-tab-panel[data-tab-panel]");
+    const tocSlots = document.querySelectorAll(".toc-slot");
+
+    function setTab(name) {
+      tabs.forEach(function (btn) {
+        const active = btn.getAttribute("data-tab-btn") === name;
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      panels.forEach(function (p) {
+        const active = p.getAttribute("data-tab-panel") === name;
+        p.classList.toggle("home-tab-panel-hidden", !active);
+        if (active) {
+          p.removeAttribute("hidden");
+        } else {
+          p.setAttribute("hidden", "");
+        }
+      });
+      tocSlots.forEach(function (slot) {
+        const active = slot.getAttribute("data-tab") === name;
+        slot.classList.toggle("toc-slot-hidden", !active);
+      });
+      try {
+        sessionStorage.setItem(STORAGE_KEY, name);
+      } catch (_e) {}
+    }
+
+    // Khôi phục từ sessionStorage hoặc URL hash (#game / #vtuber)
+    let initial = "vtuber";
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved === "game" || saved === "vtuber") initial = saved;
+    } catch (_e) {}
+    if (window.location.hash === "#game") initial = "game";
+    if (window.location.hash === "#vtuber") initial = "vtuber";
+    setTab(initial);
+
+    tabs.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        setTab(btn.getAttribute("data-tab-btn"));
+      });
+    });
+  })();
+</script>
+
 <style>
+  /* ===== TAB BAR =====
+     Visual style khớp với .tos-tabs ở /tos để UX nhất quán. Tab bar đứng độc
+     lập (căn giữa) ngay sau hero. */
+  .home-tabs-wrap {
+    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+  }
+  .home-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+  .home-tab {
+    padding: 8px 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+  .home-tab:hover {
+    color: var(--color-text);
+  }
+  .home-tab.active {
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--color-shadow);
+  }
+
+  /* ===== PANEL VISIBILITY ===== */
+  .home-tab-panel-hidden {
+    display: none;
+  }
+
+  /* ===== TOS LINK trong mỗi panel =====
+     Nhỏ gọn, căn giữa, nằm giữa tab bar và section đầu tiên của panel. Không
+     chiếm quá nhiều space để không át nội dung chính. */
+  .tab-tos-link-wrap {
+    padding: 20px 20px 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* ===== TOC SLOTS =====
+     2 bộ TOC render cùng DOM, ẩn bộ không active. Giống pattern /tos. */
+  .toc-slot-hidden :global(.toc) {
+    display: none !important;
+  }
+
   /* ===== HERO ===== */
   .hero {
     padding: 60px 20px 40px;
@@ -357,13 +544,6 @@ const tocItems = [
     flex-direction: column;
     gap: 10px;
     max-width: 60ch;
-  }
-  .section-tag {
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-accent);
   }
   .section-title {
     margin: 0;

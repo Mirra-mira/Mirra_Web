@@ -10,7 +10,7 @@ export interface Props {
 }
 const { locale } = Astro.props;
 const t = getUI(locale);
-const { tiers, clientTypes, pricingNote } = packages.gameModel;
+const { tiers, clientTypes, pricingIntro, pricingNote } = packages.gameModel;
 
 // Format cell: single price → "7.000.000 ₫"; range → "8.000.000 ₫ – 9.000.000 ₫"
 function formatCell(cell: any): string {
@@ -39,6 +39,8 @@ function formatCell(cell: any): string {
   {/* Bảng 3 cột: Mức độ | Indie | Studio */}
   <div class="pricing-table-card">
     <h4 class="pricing-table-title">{t.home.sectionGamePricingTitle}</h4>
+    {/* Dòng mô tả nổi bật vừa phải, nằm trong card bảng giá, trước bảng */}
+    <p class="pricing-intro">{pricingIntro[locale]}</p>
     <div class="pricing-table-scroll">
       <table>
         <thead>
@@ -131,6 +133,18 @@ function formatCell(cell: any): string {
     padding: 14px 18px;
     font-size: 13px;
     font-weight: 600;
+    color: var(--color-text);
+    background: var(--color-surface-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+  /* Dòng mô tả scope giá, nổi bật vừa phải: không viền, nền hơi khác,
+     chữ hơi đậm và màu text chính để nhấn so với note cuối bảng */
+  .pricing-intro {
+    margin: 0;
+    padding: 12px 18px;
+    font-size: 13px;
+    line-height: 1.55;
+    font-weight: 500;
     color: var(--color-text);
     background: var(--color-surface-2);
     border-bottom: 1px solid var(--color-border);

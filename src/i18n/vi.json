@@ -43,7 +43,6 @@
     "heroCtaPrimary": "Đặt commission",
     "heroCtaSecondary": "Đọc điều khoản",
 
-    "sectionPackagesTag": "Phần I",
     "sectionPackagesTitle": "Các gói dịch vụ",
     "sectionPackagesIntro": "Chọn gói theo app bạn muốn dùng để livestream/hiển thị model. Không chắc chọn gói nào? Nhắn Facebook mình để tư vấn trước khi đặt.",
 
@@ -58,18 +57,15 @@
     "sectionSurchargesTitle": "Phụ phí",
     "sectionSurchargesPercentOf": "giá gói",
 
-    "sectionOutfitsTag": "Phần II",
     "sectionOutfitsTitle": "Trang phục thêm",
     "sectionOutfitsBasicCol": "Cơ bản",
     "sectionOutfitsDetailCol": "Chi tiết",
     "sectionOutfitsPackageCol": "Gói",
     "sectionOutfitsConditionsTitle": "Điều kiện",
 
-    "sectionAnimationsTag": "Phần III",
     "sectionAnimationsTitle": "Animation cơ bản (VRChat)",
     "sectionAnimationsConditionsTitle": "Điều kiện",
 
-    "sectionGameTag": "Phần IV",
     "sectionGameTitle": "Model Game",
     "sectionGameTierCol": "Mức độ",
     "sectionGameIncludesTitle": "Bao gồm",
@@ -84,7 +80,11 @@
 
     "ctaBookTitle": "Sẵn sàng đặt commission?",
     "ctaBookBody": "Form Google chi tiết các bước: chọn gói, mô tả yêu cầu, upload ref. Mình phản hồi trong vòng 1–2 ngày.",
-    "ctaReadTos": "Đọc điều khoản dịch vụ trước khi đặt →"
+    "ctaReadTos": "Đọc điều khoản dịch vụ trước khi đặt →",
+
+    "tabVtuber": "Model VTuber",
+    "tabGame": "Model Game",
+    "readTosOfTab": "Đọc điều khoản dịch vụ của gói này →"
   },
 
   "tos": {

@@ -43,7 +43,6 @@
     "heroCtaPrimary": "Book commission",
     "heroCtaSecondary": "Read terms",
 
-    "sectionPackagesTag": "Part I",
     "sectionPackagesTitle": "Service packages",
     "sectionPackagesIntro": "Pick a package based on the app you plan to stream in. Not sure which one? Message me on Facebook before booking.",
 
@@ -58,18 +57,15 @@
     "sectionSurchargesTitle": "Surcharges",
     "sectionSurchargesPercentOf": "of package price",
 
-    "sectionOutfitsTag": "Part II",
     "sectionOutfitsTitle": "Extra outfits",
     "sectionOutfitsBasicCol": "Basic",
     "sectionOutfitsDetailCol": "Detail",
     "sectionOutfitsPackageCol": "Package",
     "sectionOutfitsConditionsTitle": "Conditions",
 
-    "sectionAnimationsTag": "Part III",
     "sectionAnimationsTitle": "Basic animations (VRChat)",
     "sectionAnimationsConditionsTitle": "Conditions",
 
-    "sectionGameTag": "Part IV",
     "sectionGameTitle": "Game Model",
     "sectionGameTierCol": "Tier",
     "sectionGameIncludesTitle": "Includes",
@@ -84,7 +80,11 @@
 
     "ctaBookTitle": "Ready to book?",
     "ctaBookBody": "The Google Form walks through package selection, requirements, and reference upload. I reply within 1–2 days.",
-    "ctaReadTos": "Read the terms of service first →"
+    "ctaReadTos": "Read the terms of service first →",
+
+    "tabVtuber": "VTuber Model",
+    "tabGame": "Game Model",
+    "readTosOfTab": "Read the terms of service for this service →"
   },
 
   "tos": {

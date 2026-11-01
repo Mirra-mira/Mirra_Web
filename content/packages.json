@@ -186,8 +186,8 @@
   },
   "gameModel": {
     "intro": {
-      "vi": "Dựng model nhân vật 3D phong cách anime cho game, từ thiết kế 2D khách cung cấp. Phạm vi: modeling, rigging, blendshape. Bàn giao file FBX kèm texture.",
-      "en": "3D anime-style character models for games, built from your 2D character design. Scope: modeling, rigging, blendshapes. Delivered as FBX with textures."
+      "vi": "Dựng model nhân vật 3D phong cách anime cho game, từ thiết kế 2D khách cung cấp. Phạm vi: modeling, rigging, blendshape. Bàn giao file FBX kèm UV và màu nền cơ bản; vẽ texture là dịch vụ thêm.",
+      "en": "3D anime-style character models for games, built from your 2D character design. Scope: modeling, rigging, blendshapes. Delivered as FBX with complete UVs and basic base colors; texture painting is an add-on service."
     },
     "includes": {
       "vi": [
@@ -275,11 +275,26 @@
         "studio": { "vnd": 13000000, "usd": 510 }
       }
     ],
+    "pricingIntro": {
+      "vi": "Giá gồm modeling, UV hoàn chỉnh, màu nền cơ bản, rig và blendshape. Chưa gồm vẽ texture.",
+      "en": "Price includes modeling, complete UVs, basic base colors, rig and blendshapes. Texture painting not included."
+    },
     "pricingNote": {
       "vi": "Giá chính xác được chốt sau khi xem thiết kế. Nếu thông tin phân loại khai không đúng, artist có quyền điều chỉnh giá theo đúng loại.",
       "en": "Final price is confirmed after reviewing the design. If the declared client category doesn't match reality, the artist may adjust the price accordingly."
     },
     "surcharges": [
+      {
+        "id": "texture_paint",
+        "label": {
+          "vi": "Vẽ texture",
+          "en": "Texture painting"
+        },
+        "value": {
+          "vi": "+30% giá gói",
+          "en": "+30% of the package price"
+        }
+      },
       {
         "id": "extra_complex",
         "label": {
